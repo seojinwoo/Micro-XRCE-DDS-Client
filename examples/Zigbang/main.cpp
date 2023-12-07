@@ -38,8 +38,8 @@ int main(
     // CLI
     if (3 > args || 0 == atoi(argv[2]))
     {
-        ip = "192.168.1.160";
-        port = "2019";
+        ip = (char *)"192.168.1.160";
+        port = (char *)"2019";
         max_topics = UINT32_MAX;
     }
     else
@@ -50,16 +50,13 @@ int main(
     }
 
     // Transport
-    uxrUDPTransport transport;
-    if (!uxr_init_udp_transport(&transport, UXR_IPv4, ip, port))
+    if( InitTrasport(&uxr, ip, port) == false )
     {
-        printf("Error at create transport.\n");
         return 1;
     }
 
     // Session
-    uxr_init_session(&uxr.session, &transport.comm, 0xAAAABBBB);
-    if (!uxr_create_session(&uxr.session))
+    if( InitSession(&uxr, 0xAAAABBBB) == false )
     {
         printf("Error at create session.\n");
         return 1;
@@ -107,7 +104,7 @@ int main(
 
     // Delete resources
     uxr_delete_session(&uxr.session);
-    uxr_close_udp_transport(&transport);
+    uxr_close_udp_transport(&uxr.transport);
 
     return 0;
 }

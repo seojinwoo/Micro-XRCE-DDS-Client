@@ -6,6 +6,27 @@
 #include "GlobalVariable.h"
 #include "uxrDDS.h"
 
+bool InitTrasport(zigbangUXR * uxr, char* ip, char* port)
+{
+    if (!uxr_init_udp_transport(&uxr->transport, UXR_IPv4, ip, port))
+    {
+        printf("Error at create transport.\n");
+        return false;
+    }
+    return true;
+}
+
+bool InitSession(zigbangUXR * uxr, uint32_t key)
+{
+    uxr_init_session(&uxr->session, &uxr->transport.comm, key);
+    if (!uxr_create_session(&uxr->session))
+    {
+        printf("Error at create session.\n");
+        return false;
+    }
+    return true;
+}
+
 void MakeStream(zigbangUXR * uxr)
 {
     uxr->reliable_out = uxr_create_output_reliable_stream(&uxr->session, uxr->output_reliable_stream_buffer, BUFFER_SIZE, STREAM_HISTORY);

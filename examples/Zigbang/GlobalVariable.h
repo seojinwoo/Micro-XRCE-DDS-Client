@@ -15,4 +15,5 @@ typedef struct zigbangUXR
     uint16_t publisher_req;
     uxrObjectId datawriter_id;
     uint16_t datawriter_req;
+    uxrUDPTransport transport;
 } zigbangUXR;
