@@ -400,11 +400,13 @@ endif()
 ###############################################################################
 # Examples
 ###############################################################################
+
 if(UCLIENT_BUILD_EXAMPLES)
     add_subdirectory(examples/Deployment)
     add_subdirectory(examples/Discovery)
     add_subdirectory(examples/MultiSessionHelloWorld)
     add_subdirectory(examples/PublishHelloWorld)
+    add_subdirectory(examples/Zigbang)
     add_subdirectory(examples/PublishHelloWorldP2P)
     add_subdirectory(examples/ReplyAdder)
     add_subdirectory(examples/RequestAdder)
