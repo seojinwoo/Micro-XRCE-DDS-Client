@@ -5,6 +5,7 @@ compile_commands.json
 .color_coded
 CMakeLists.txt.user
 tags
+.DS_Store
 
 # eclipse
 .cproject

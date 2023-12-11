@@ -24,6 +24,44 @@
 #include "GlobalVariable.h"
 #include "uxrDDS.h"
 
+#define PARTICIPANT_ID_PUB 0x0B
+#define PARTICIPANT_ID_SUB 0x0B
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    #define PARTICIPANT_ID 0xCCCC0100
+#elif __APPLE__
+    #define PARTICIPANT_ID 0xCCCC0200
+#else
+    #define PARTICIPANT_ID 0xCCCC0300
+#endif
+
+#define TOPIC_NAME "HelloWorldTopic"
+#define TOPIC2_NAME "HelloWorldTopic2"
+
+#define TOPIC_TYPE "HelloWorld"
+
+
+void on_topic(
+        uxrSession* session,
+        uxrObjectId object_id,
+        uint16_t request_id,
+        uxrStreamId stream_id,
+        struct ucdrBuffer* ub,
+        uint16_t length,
+        void* args)
+{
+    (void) session; (void) object_id; (void) request_id; (void) stream_id; (void) length;
+
+    HelloWorld topic;
+    HelloWorld_deserialize_topic(ub, &topic);
+
+    printf("Received topic: %s, id: %i\n", topic.message, topic.index);
+
+    uint32_t* count_ptr = (uint32_t*) args;
+    (*count_ptr)++;
+}
+
+#define TOPIC_2_ENABLE 1
 
 int main(
         int args,
@@ -31,7 +69,7 @@ int main(
 {
     char* ip;
     char* port;
-    uint32_t max_topics;
+    uint32_t count = 0;
 
     zigbangUXR uxr;
 
@@ -40,13 +78,11 @@ int main(
     {
         ip = (char *)"192.168.1.160";
         port = (char *)"2019";
-        max_topics = UINT32_MAX;
     }
     else
     {
         ip = argv[1];
         port = argv[2];
-        max_topics = (args == 4) ? (uint32_t)atoi(argv[3]) : UINT32_MAX;
     }
 
     // Transport
@@ -56,38 +92,60 @@ int main(
     }
 
     // Session
-    if( InitSession(&uxr, 0xAAAABBBB) == false )
+    if( InitSession(&uxr, PARTICIPANT_ID | PARTICIPANT_ID_PUB) == false )
     {
         printf("Error at create session.\n");
         return 1;
     }
+    uxr_set_topic_callback(&uxr.session, on_topic, &count);
 
     // Streams
     MakeStream(&uxr);
 
     // Create entities
-    CreateEntity(&uxr);
+    CreateEntity(&uxr, 0x01);
     
     // Make Topic
-    MakeTopic(&uxr);
+    MakeTopic(&uxr, 0x01, TOPIC_NAME, TOPIC_TYPE);
+    #if (TOPIC_2_ENABLE != 0)
+    MakeTopic(&uxr, 0x02, TOPIC2_NAME, TOPIC_TYPE);
+    #endif
     
     // Make Pulisher
     MakePublisher(&uxr);
     
     // Make dataWriter
-    MakerDataWriter(&uxr);
+    MakeDataWriter(&uxr, 0x01, TOPIC_NAME, TOPIC_TYPE);
+    #if (TOPIC_2_ENABLE != 0)
+    MakeDataWriter(&uxr, 0x02, TOPIC2_NAME, TOPIC_TYPE);
+    #endif
+
+    // Make Subscriber
+    // MakeSubscriber(&uxr);
+
+    // Make dataReader
+    // MakeDataReader(&uxr, 0x02, TOPIC_NAME, TOPIC_TYPE);
     
     // Send create entities message and wait its status
-    if(RegisterEntity(&uxr) == 1)
+    if(RegisterEntity(&uxr, 0x01) == false)
     {
+        printf("Error at RegisterEntity 0x01\n");
         return 1;
     }
+    #if (TOPIC_2_ENABLE != 0)
+    /*
+    if(RegisterEntity(&uxr, 0x02) == false)
+    {
+        printf("Error at RegisterEntity 0x02\n");
+        return 1;
+    }
+    */
+    #endif
     
-
     // Write topics
     bool connected = true;
-    uint32_t count = 0;
-    while (connected && count < max_topics)
+
+    while (connected)
     {
         HelloWorld topic = {
             ++count, "Hello DDS world! = HI"
@@ -95,11 +153,18 @@ int main(
 
         ucdrBuffer ub;
         uint32_t topic_size = HelloWorld_size_of_topic(&topic, 0);
-        uxr_prepare_output_stream(&uxr.session, uxr.reliable_out, uxr.datawriter_id, &ub, topic_size);
+        uxr_prepare_output_stream(&uxr.session, uxr.reliable_out, uxr.dicWriter[1].datawriter_id, &ub, topic_size);
         HelloWorld_serialize_topic(&ub, &topic);
 
-        printf("Send topic: %s, id: %i\n", topic.message, topic.index);
+        printf("Send topic1: %s, id: %i\n", topic.message, topic.index);
         connected = uxr_run_session_time(&uxr.session, 1000);
+
+        uxr_prepare_output_stream(&uxr.session, uxr.reliable_out, uxr.dicWriter[2].datawriter_id, &ub, topic_size);
+        HelloWorld_serialize_topic(&ub, &topic);
+
+        printf("Send topic2: %s, id: %i\n", topic.message, topic.index);
+        connected = uxr_run_session_time(&uxr.session, 1000);
+
     }
 
     // Delete resources
