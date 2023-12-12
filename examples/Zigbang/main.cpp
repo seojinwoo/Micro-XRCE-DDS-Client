@@ -76,7 +76,8 @@ int main(
     // CLI
     if (3 > args || 0 == atoi(argv[2]))
     {
-        ip = (char *)"192.168.1.160";
+        // ip = (char *)"192.168.1.160";
+        ip = (char *)"192.168.1.118";
         port = (char *)"2019";
     }
     else
