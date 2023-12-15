@@ -21,47 +21,24 @@
 #include <string.h> //strcmp
 #include <stdlib.h> //atoi
 
-#include "GlobalVariable.h"
-#include "uxrDDS.h"
+#include <thread>
+#include <map>
+#include <string>
 
-#define PARTICIPANT_ID_PUB 0x0B
-#define PARTICIPANT_ID_SUB 0x0B
-
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-    #define PARTICIPANT_ID 0xCCCC0100
-#elif __APPLE__
-    #define PARTICIPANT_ID 0xCCCC0200
-#else
-    #define PARTICIPANT_ID 0xCCCC0300
-#endif
+#define EXTERN
+#include "global.h"
 
 #define TOPIC_NAME "HelloWorldTopic"
 #define TOPIC2_NAME "HelloWorldTopic2"
 
 #define TOPIC_TYPE "HelloWorld"
 
+#define TOPIC_COUNT 100
 
-void on_topic(
-        uxrSession* session,
-        uxrObjectId object_id,
-        uint16_t request_id,
-        uxrStreamId stream_id,
-        struct ucdrBuffer* ub,
-        uint16_t length,
-        void* args)
-{
-    (void) session; (void) object_id; (void) request_id; (void) stream_id; (void) length;
 
-    HelloWorld topic;
-    HelloWorld_deserialize_topic(ub, &topic);
+extern void PubTask(char* ip, char* port, int index);
+extern void SubTask(char* ip, char* port, int index);
 
-    printf("Received topic: %s, id: %i\n", topic.message, topic.index);
-
-    uint32_t* count_ptr = (uint32_t*) args;
-    (*count_ptr)++;
-}
-
-#define TOPIC_2_ENABLE 1
 
 int main(
         int args,
@@ -69,15 +46,12 @@ int main(
 {
     char* ip;
     char* port;
-    uint32_t count = 0;
-
-    zigbangUXR uxr;
 
     // CLI
     if (3 > args || 0 == atoi(argv[2]))
     {
-        // ip = (char *)"192.168.1.160";
-        ip = (char *)"192.168.1.118";
+        ip = (char*)"192.168.1.160"; // mufia
+        //ip = (char*)"192.168.100.118"; // Soma
         port = (char *)"2019";
     }
     else
@@ -86,91 +60,39 @@ int main(
         port = argv[2];
     }
 
-    // Transport
-    if( InitTrasport(&uxr, ip, port) == false )
-    {
-        return 1;
+    /////////////////////////////////////////////////////////////////////////////////
+    // Common
+    // Make Topics
+    dicTopics[1] = std::pair<std::string, std::string>{"HelloWorldTopic", TOPIC_TYPE};
+    for (int i = 2; i <= TOPIC_COUNT; i++) {
+        dicTopics[i] = std::pair<std::string, std::string>{ "HelloWorldTopic" + std::to_string(i), TOPIC_TYPE };
     }
-
-    // Session
-    if( InitSession(&uxr, PARTICIPANT_ID | PARTICIPANT_ID_PUB) == false )
-    {
-        printf("Error at create session.\n");
-        return 1;
-    }
-    uxr_set_topic_callback(&uxr.session, on_topic, &count);
-
-    // Streams
-    MakeStream(&uxr);
-
-    // Create entities
-    CreateEntity(&uxr, 0x01);
     
-    // Make Topic
-    MakeTopic(&uxr, 0x01, TOPIC_NAME, TOPIC_TYPE);
-    #if (TOPIC_2_ENABLE != 0)
-    MakeTopic(&uxr, 0x02, TOPIC2_NAME, TOPIC_TYPE);
-    #endif
-    
-    // Make Pulisher
-    MakePublisher(&uxr);
-    
-    // Make dataWriter
-    MakeDataWriter(&uxr, 0x01, TOPIC_NAME, TOPIC_TYPE);
-    #if (TOPIC_2_ENABLE != 0)
-    MakeDataWriter(&uxr, 0x02, TOPIC2_NAME, TOPIC_TYPE);
-    #endif
+    threadRun.clear_bit(EXIT_PROGRAM_ID);
 
-    // Make Subscriber
-    // MakeSubscriber(&uxr);
+    std::thread pubThread(PubTask, ip, port, PUB_STATUS_ID);
+    while (threadRun.get_bit(PUB_STATUS_ID) != true);
+    while (threadIdle.get_bit(PUB_STATUS_ID) != true);
 
-    // Make dataReader
-    // MakeDataReader(&uxr, 0x02, TOPIC_NAME, TOPIC_TYPE);
-    
-    // Send create entities message and wait its status
-    if(RegisterEntity(&uxr, 0x01) == false)
-    {
-        printf("Error at RegisterEntity 0x01\n");
-        return 1;
-    }
-    #if (TOPIC_2_ENABLE != 0)
-    /*
-    if(RegisterEntity(&uxr, 0x02) == false)
-    {
-        printf("Error at RegisterEntity 0x02\n");
-        return 1;
-    }
-    */
-    #endif
-    
+    std::thread subThread(SubTask, ip, port, SUB_STATUS_ID);
+    while (threadRun.get_bit(SUB_STATUS_ID) != true);
+    while (threadIdle.get_bit(SUB_STATUS_ID) != true);
+
     // Write topics
     bool connected = true;
 
     while (connected)
     {
-        HelloWorld topic = {
-            ++count, "Hello DDS world! = HI"
-        };
+        if ((threadRun.get_bit(PUB_STATUS_ID) == false) || (threadRun.get_bit(SUB_STATUS_ID) == false))
+        {
+            threadRun.set_bit(EXIT_PROGRAM_ID);
+        }
 
-        ucdrBuffer ub;
-        uint32_t topic_size = HelloWorld_size_of_topic(&topic, 0);
-        uxr_prepare_output_stream(&uxr.session, uxr.reliable_out, uxr.dicWriter[1].datawriter_id, &ub, topic_size);
-        HelloWorld_serialize_topic(&ub, &topic);
-
-        printf("Send topic1: %s, id: %i\n", topic.message, topic.index);
-        connected = uxr_run_session_time(&uxr.session, 1000);
-
-        uxr_prepare_output_stream(&uxr.session, uxr.reliable_out, uxr.dicWriter[2].datawriter_id, &ub, topic_size);
-        HelloWorld_serialize_topic(&ub, &topic);
-
-        printf("Send topic2: %s, id: %i\n", topic.message, topic.index);
-        connected = uxr_run_session_time(&uxr.session, 1000);
-
+        if ((threadRun.get_bit(PUB_STATUS_ID) == false) && (threadRun.get_bit(SUB_STATUS_ID) == false))
+        {
+            connected = false;
+        }
     }
-
-    // Delete resources
-    uxr_delete_session(&uxr.session);
-    uxr_close_udp_transport(&uxr.transport);
 
     return 0;
 }
