@@ -45,7 +45,7 @@ void PubTask(char* ip, char* port, int index)
                     memset(topic.message, 0, sizeof(topic.message));
                     memcpy(topic.message, text.c_str(), text.size());
 
-                    // uxrPubOnly.PubTopic(it->first, topic);
+                    uxrPubOnly.PubTopic(it->first, topic);
 
                     connected = uxr_run_session_time(&uxrPubOnly.session, 500);
 
