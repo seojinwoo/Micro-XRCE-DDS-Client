@@ -12,23 +12,58 @@ uint8_t crcCount = 0;
 
 void rx_thread()
 {
+    bool DebugHere = true;
     // Infinite loop that runs the interval job
+    std::cout << "Start Serial RX" << std::endl;
     while (true)
     {
         // Read Bytes
         uint8_t buffer;
         boost::asio::read(serialPort, boost::asio::buffer(&buffer, 1));
 
+        if (buffer == 0x7E)
+        {
+            std::cout << std::endl;
+        }
+
+        if (DebugHere)
+        {
+            std::cout << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(buffer) << " ";
+            std::cout.flush();
+        }
+        else
+        {
+            std::cout << ".";
+            std::cout.flush();
+        }
+
         RxQueue.push(buffer);
     }
+    std::cout << "Exit Serial RX" << std::endl;
 }
 
 std::vector<uint8_t> HandlingSerial(uint8_t one)
 {
+    static auto lastTime = std::chrono::high_resolution_clock::now(); // Initialize to current time
+    bool DebugHere = false;
     std::vector<uint8_t> ReturnValue;
     static int Step = 0;
 
-    // std::cout << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(one) << " ";
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count();
+
+    if (duration > 5)
+    {
+        SavedToReturn.clear();
+        Step = 0;
+    }
+
+    lastTime = currentTime; // Update lastTime to current time
+
+    if (DebugHere)
+    {
+        std::cout << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(one) << " ";
+    }
 
     SavedToReturn.push_back(one);
     switch (Step)
@@ -105,7 +140,10 @@ std::vector<uint8_t> HandlingSerial(uint8_t one)
     }
     }
 
-    // std::cout << "Step: " << Step << std::endl;
+    if (DebugHere)
+    {
+        std::cout << "Step: " << Step << std::endl;
+    }
 
     if (Step == 99 || Step == 6)
     {
@@ -116,10 +154,57 @@ std::vector<uint8_t> HandlingSerial(uint8_t one)
     return ReturnValue;
 }
 
+void SetSerial(int fd)
+{
+    struct termios options;
+    tcgetattr(fd, &options);
+
+    // Set baud rate
+    cfsetispeed(&options, B115200);
+    cfsetospeed(&options, B115200);
+
+    /* Setting CONTROL OPTIONS. */
+    options.c_cflag |= unsigned(CREAD);    // Enable read.
+    options.c_cflag |= unsigned(CLOCAL);   // Set local mode.
+    options.c_cflag &= unsigned(~PARENB);  // Disable parity.
+    options.c_cflag &= unsigned(~CSTOPB);  // Set one stop bit.
+    options.c_cflag &= unsigned(~CSIZE);   // Mask the character size bits.
+    options.c_cflag |= unsigned(CS8);      // Set 8 data bits.
+    options.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
+
+    /* Setting LOCAL OPTIONS. */
+    options.c_lflag &= unsigned(~ICANON); // Set non-canonical input.
+    options.c_lflag &= unsigned(~ECHO);   // Disable echoing of input characters.
+    options.c_lflag &= unsigned(~ECHOE);  // Disable echoing the erase character.
+    options.c_lflag &= unsigned(~ISIG);   // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
+
+    /* Setting INPUT OPTIONS. */
+    options.c_iflag &= unsigned(~IXON);   // Disable output software flow control.
+    options.c_iflag &= unsigned(~IXOFF);  // Disable input software flow control.
+    options.c_iflag &= unsigned(~INPCK);  // Disable parity check.
+    options.c_iflag &= unsigned(~ISTRIP); // Disable strip parity bits.
+    options.c_iflag &= unsigned(~IGNBRK); // No ignore break condition.
+    options.c_iflag &= unsigned(~IGNCR);  // No ignore carrier return.
+    options.c_iflag &= unsigned(~INLCR);  // No map NL to CR.
+    options.c_iflag &= unsigned(~ICRNL);  // No map CR to NL.
+
+    /* Setting OUTPUT OPTIONS. */
+    options.c_oflag &= unsigned(~OPOST); // Set raw output.
+
+    /* Setting OUTPUT CHARACTERS. */
+    options.c_cc[VMIN] = 1;
+    options.c_cc[VTIME] = 1;
+
+    tcsetattr(fd, TCSANOW, &options);
+}
+
 void SerialTask(char *dev, int index)
 {
+    int fd = open(dev, O_RDWR | O_NOCTTY | O_NONBLOCK);
+    SetSerial(fd);
+
     serialPort.open(dev);
-    serialPort.set_option(boost::asio::serial_port_base::baud_rate(9600));
+    serialPort.set_option(boost::asio::serial_port_base::baud_rate(115200));
     serialPort.set_option(boost::asio::serial_port_base::character_size(8));
     serialPort.set_option(boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none));
     serialPort.set_option(boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
@@ -138,7 +223,22 @@ void SerialTask(char *dev, int index)
         {
             std::vector<uint8_t> toSend;
             TxSerialQueue[0].wait_and_pop(toSend);
-            boost::asio::write(serialPort, boost::asio::buffer(toSend));
+
+            std::cout << "Client << Serial << Send " << std::dec << toSend.size() << " bytes to Serial" << std::endl;
+
+            // boost::asio::write(serialPort, boost::asio::buffer(toSend));
+
+            for (std::size_t i = 0; i < toSend.size(); ++i)
+            {
+                // Write one byte to the serial port
+                boost::asio::write(serialPort, boost::asio::buffer(&toSend[i], 1));
+
+                // Alternatively, you can use the put_char function
+                // serialPort.put_char(toSend[i]);
+
+                // Optionally, add a delay between each write
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
         }
 
         // Rx Serial Part
@@ -150,6 +250,8 @@ void SerialTask(char *dev, int index)
 
             if (one.size() >= 7)
             {
+                std::cout << std::endl
+                          << "Client >> Serial >> Received " << std::dec << one.size() << " bytes" << std::endl;
                 TxUdpQueue.push(one);
             }
         }

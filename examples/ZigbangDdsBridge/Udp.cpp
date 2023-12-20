@@ -57,6 +57,9 @@ void UdpTask(char *ip, char *port, int index)
     dest_addr.sin_port = htons(std::stoi(port));
     dest_addr.sin_addr.s_addr = inet_addr(ip);
 
+    uint8_t SourceAddress;
+    uint8_t RemoteAddress;
+
     bool Connected = true;
     while (Connected)
     {
@@ -70,62 +73,75 @@ void UdpTask(char *ip, char *port, int index)
 
             if (aPacket.isValid)
             {
-                uint8_t SourceAddress = toSend[1];
-                uint8_t RemoteAddress = toSend[2];
+                std::cout << aPacket.ShowAllInfo();
+
+                SourceAddress = toSend[1];
+                RemoteAddress = toSend[2];
                 uint16_t Length = toSend[3] * 0x100 + toSend[4];
 
-                // Remove the first 5 elements
                 toSend.erase(toSend.begin(), toSend.begin() + 5);
-                // Remove the last 2 elements
                 toSend.erase(toSend.end() - 2, toSend.end());
 
+                std::cout << "Send >> UDP >> Server " << std::dec << toSend.size() << " bytes to " << inet_ntoa(dest_addr.sin_addr) << ":" << ntohs(dest_addr.sin_port) << std::endl;
+
                 sendto(sockfd, toSend.data(), toSend.size(), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-
-                fd_set readfds;
-                FD_ZERO(&readfds);
-                FD_SET(sockfd, &readfds);
-                struct timeval timeout;
-                timeout.tv_sec = 5;
-                timeout.tv_usec = 0;
-                int result = select(sockfd + 1, &readfds, NULL, NULL, &timeout);
-                if (result > 0)
-                {
-                    // Receive data from the socket
-                    std::vector<uint8_t> buffer(1024);
-                    struct sockaddr_in src_addr;
-                    socklen_t addrlen = sizeof(src_addr);
-                    ssize_t nbytes = recvfrom(sockfd, buffer.data(), buffer.size(), 0, (struct sockaddr *)&src_addr, &addrlen);
-
-                    // Output the received data
-                    std::cout << "Received " << nbytes << " bytes from " << inet_ntoa(src_addr.sin_addr) << ":" << ntohs(src_addr.sin_port) << std::endl;
-
-                    // Store the received data in a vector
-                    std::vector<uint8_t> receivedData(buffer.begin(), buffer.begin() + nbytes);
-
-                    // Get CRC
-                    uint16_t crc = GetCrc16(receivedData);
-
-                    uint8_t HighLength = (nbytes >> 8) & 0xFF;
-                    uint8_t LowLength = (nbytes >> 0) & 0xFF;
-
-                    uint8_t HighCRC = (crc >> 8) & 0xFF;
-                    uint8_t LowCRC = (crc >> 0) & 0xFF;
-
-                    receivedData.insert(receivedData.begin(), {UXR_FRAMING_BEGIN_FLAG, RemoteAddress, SourceAddress, LowLength, HighLength});
-                    receivedData.push_back(LowCRC);
-                    receivedData.push_back(HighCRC);
-
-                    TxSerialQueue[0].push(receivedData);
-                }
-                else if (result == 0)
-                {
-                    // std::cout << "Timeout waiting for data." << std::endl;
-                }
-                else
-                {
-                    // std::cerr << "Error waiting for data." << std::endl;
-                }
             }
+        }
+
+        fd_set readfds;
+        FD_ZERO(&readfds);
+        FD_SET(sockfd, &readfds);
+        struct timeval timeout;
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 1000;
+        int result = select(sockfd + 1, &readfds, NULL, NULL, &timeout);
+        if (result > 0)
+        {
+            // Receive data from the socket
+            std::vector<uint8_t> buffer(1024);
+            struct sockaddr_in src_addr;
+            socklen_t addrlen = sizeof(src_addr);
+            ssize_t nbytes = recvfrom(sockfd, buffer.data(), buffer.size(), 0, (struct sockaddr *)&src_addr, &addrlen);
+
+            // Output the received data
+            std::cout << "Received << UDP << Server " << nbytes << " bytes from " << inet_ntoa(src_addr.sin_addr) << ":" << ntohs(src_addr.sin_port) << std::endl;
+
+            // Store the received data in a vector
+            std::vector<uint8_t> receivedData(buffer.begin(), buffer.begin() + nbytes);
+
+            // Get CRC
+            uint16_t crc = GetCrc16(receivedData);
+
+            uint8_t HighLength = (nbytes >> 8) & 0xFF;
+            uint8_t LowLength = (nbytes >> 0) & 0xFF;
+
+            uint8_t HighCRC = (crc >> 8) & 0xFF;
+            uint8_t LowCRC = (crc >> 0) & 0xFF;
+
+            receivedData.insert(receivedData.begin(), {UXR_FRAMING_BEGIN_FLAG, RemoteAddress, SourceAddress, LowLength, HighLength});
+            receivedData.push_back(LowCRC);
+            receivedData.push_back(HighCRC);
+
+            StreamPacket GetFromUdp;
+            GetFromUdp.SetFrame(receivedData);
+            if (GetFromUdp.isValid)
+            {
+                std::cout << "Valid to send" << std::endl;
+            }
+            else
+            {
+                std::cout << "Invalid to send" << std::endl;
+            }
+
+            TxSerialQueue[0].push(receivedData);
+        }
+        else if (result == 0)
+        {
+            // std::cout << "Timeout waiting for data." << std::endl;
+        }
+        else
+        {
+            std::cerr << "Error waiting for data." << std::endl;
         }
     }
 }

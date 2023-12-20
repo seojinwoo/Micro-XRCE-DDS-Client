@@ -93,14 +93,30 @@ public:
         isValid = (ReceivedCRC == ReceivedCRC);
     }
 
-    std::string to_hex_string(const std::vector<uint8_t> &data)
+    std::string ShowAllInfo()
     {
         std::ostringstream oss;
+
+        oss << "Flag: " << std::hex << static_cast<int>(Flag) << std::endl;
+        oss << "Source: " << std::hex << static_cast<int>(Source) << std::endl;
+        oss << "Remote: " << std::hex << static_cast<int>(Remote) << std::endl;
+        oss << "Length: " << std::dec << Payload.size() << std::endl;
+        oss << ShowPayload();
+
+        return oss.str();
+    }
+
+    std::string ShowPayload()
+    {
+        std::ostringstream oss;
+
         oss << std::hex << std::uppercase << std::setfill('0');
-        for (auto byte : data)
+        for (auto byte : Payload)
         {
             oss << std::setw(2) << static_cast<unsigned int>(byte) << " ";
         }
+        oss << std::endl;
+
         return oss.str();
     }
 };

@@ -36,8 +36,8 @@ void SetSerial(int fd)
     tcgetattr(fd, &options);
 
     // Set baud rate
-    cfsetispeed(&options, B9600);
-    cfsetospeed(&options, B9600);
+    cfsetispeed(&options, B115200);
+    cfsetospeed(&options, B115200);
 
     /* Setting CONTROL OPTIONS. */
     options.c_cflag |= unsigned(CREAD);    // Enable read.
@@ -118,7 +118,7 @@ int main(
     uxr_create_input_reliable_stream(&session, input_reliable_stream_buffer, BUFFER_SIZE, STREAM_HISTORY);
 
     // Create entities
-    uxrObjectId participant_id = uxr_object_id(0x01, UXR_PARTICIPANT_ID);
+    uxrObjectId participant_id = uxr_object_id(0x10, UXR_PARTICIPANT_ID);
     const char *participant_xml = "<dds>"
                                   "<participant>"
                                   "<rtps>"
