@@ -1,0 +1,60 @@
+Micro XRCE-DDS Client Custom transport: opening
+Micro XRCE-DDS Client Custom transport: wrote 24 B
+80 00 00 00 00 01 10 00 58 52 43 45 01 00 01 0F AA AA BB BB 81 00 FC 01 
+Micro XRCE-DDS Client Custom transport: read 19 B
+81 00 00 00 04 01 0B 00 00 00 58 52 43 45 01 00 01 0F 00 
+Micro XRCE-DDS Client Custom transport: wrote 388 B
+81 80 00 00 01 05 68 00 00 0A 00 11 01 02 00 00 59 00 00 00 3C 64 64 73 3E 3C 70 61 72 74 69 63 69 70 61 6E 74 3E 3C 72 74 70 73 3E 3C 6E 61 6D 65 3E 64 65 66 61 75 6C 74 5F 78 72 63 65 5F 70 61 72 74 69 63 69 70 61 6E 74 3C 2F 6E 61 6D 65 3E 3C 2F 72 74 70 73 3E 3C 2F 70 61 72 74 69 63 69 70 61 6E 74 3E 3C 2F 64 64 73 3E 00 00 00 00 01 05 64 00 00 0B 00 12 02 02 00 00 56 00 00 00 3C 64 64 73 3E 3C 74 6F 70 69 63 3E 3C 6E 61 6D 65 3E 48 65 6C 6C 6F 57 6F 72 6C 64 54 6F 70 69 63 3C 2F 6E 61 6D 65 3E 3C 64 61 74 61 54 79 70 65 3E 48 65 6C 6C 6F 57 6F 72 6C 64 3C 2F 64 61 74 61 54 79 70 65 3E 3C 2F 74 6F 70 69 63 3E 3C 2F 64 64 73 3E 00 00 11 01 05 0F 00 00 0C 00 13 03 02 00 00 01 00 00 00 00 00 11 00 01 05 92 00 00 0D 00 15 05 02 00 00 84 00 00 00 3C 64 64 73 3E 3C 64 61 74 61 5F 77 72 69 74 65 72 3E 3C 74 6F 70 69 63 3E 3C 6B 69 6E 64 3E 4E 4F 5F 4B 45 59 3C 2F 6B 69 6E 64 3E 3C 6E 61 6D 65 3E 48 65 6C 6C 6F 57 6F 72 6C 64 54 6F 70 69 63 3C 2F 6E 61 6D 65 3E 3C 64 61 74 61 54 79 70 65 3E 48 65 6C 6C 6F 57 6F 72 6C 64 3C 2F 64 61 74 61 54 79 70 65 3E 3C 2F 74 6F 70 69 63 3E 3C 2F 64 61 74 61 5F 77 72 69 74 65 72 3E 3C 2F 64 64 73 3E 00 00 13 00 00 
+Micro XRCE-DDS Client Custom transport: read 14 B
+81 80 00 00 05 01 06 00 00 0A 00 11 00 00 
+Micro XRCE-DDS Client Custom transport: wrote 13 B
+81 00 00 00 0A 01 05 00 01 00 00 00 80 
+Micro XRCE-DDS Client Custom transport: read 14 B
+81 80 01 00 05 01 06 00 00 0B 00 12 00 00 
+Micro XRCE-DDS Client Custom transport: wrote 13 B
+81 00 00 00 0A 01 05 00 02 00 00 00 80 
+Micro XRCE-DDS Client Custom transport: read 14 B
+81 80 02 00 05 01 06 00 00 0C 00 13 00 00 
+Micro XRCE-DDS Client Custom transport: wrote 13 B
+81 00 00 00 0A 01 05 00 03 00 00 00 80 
+Micro XRCE-DDS Client Custom transport: read 14 B
+81 80 03 00 05 01 06 00 00 0D 00 15 00 00 
+Micro XRCE-DDS Client Custom transport: wrote 13 B
+81 00 00 00 0A 01 05 00 04 00 00 00 80 
+Send topic: Hello DDS world!, id: 1
+Micro XRCE-DDS Client Custom transport: wrote 40 B
+81 80 01 00 07 01 1D 00 00 0E 00 15 01 00 00 00 11 00 00 00 48 65 6C 6C 6F 20 44 44 53 20 77 6F 72 6C 64 21 00 00 00 00 
+Micro XRCE-DDS Client Custom transport: read 13 B
+81 00 00 00 0A 01 05 00 01 00 00 00 80 
+Micro XRCE-DDS Client Custom transport: read 13 B
+81 00 00 00 0A 01 05 00 02 00 00 00 80 
+Micro XRCE-DDS Client Custom transport: read 0 B
+Send topic: Hello DDS world!, id: 2
+Micro XRCE-DDS Client Custom transport: wrote 40 B
+81 80 02 00 07 01 1D 00 00 0F 00 15 02 00 00 00 11 00 00 00 48 65 6C 6C 6F 20 44 44 53 20 77 6F 72 6C 64 21 00 00 00 00 
+Micro XRCE-DDS Client Custom transport: read 13 B
+81 00 00 00 0A 01 05 00 03 00 00 00 80 
+Micro XRCE-DDS Client Custom transport: read 0 B
+Send topic: Hello DDS world!, id: 3
+Micro XRCE-DDS Client Custom transport: wrote 40 B
+81 80 03 00 07 01 1D 00 00 10 00 15 03 00 00 00 11 00 00 00 48 65 6C 6C 6F 20 44 44 53 20 77 6F 72 6C 64 21 00 00 00 00 
+Micro XRCE-DDS Client Custom transport: read 13 B
+81 00 00 00 0A 01 05 00 04 00 00 00 80 
+Micro XRCE-DDS Client Custom transport: read 0 B
+Send topic: Hello DDS world!, id: 4
+Micro XRCE-DDS Client Custom transport: wrote 40 B
+81 80 04 00 07 01 1D 00 00 11 00 15 04 00 00 00 11 00 00 00 48 65 6C 6C 6F 20 44 44 53 20 77 6F 72 6C 64 21 00 00 00 00 
+Micro XRCE-DDS Client Custom transport: read 13 B
+81 00 00 00 0A 01 05 00 05 00 00 00 80 
+Micro XRCE-DDS Client Custom transport: read 0 B
+Send topic: Hello DDS world!, id: 5
+Micro XRCE-DDS Client Custom transport: wrote 40 B
+81 80 05 00 07 01 1D 00 00 12 00 15 05 00 00 00 11 00 00 00 48 65 6C 6C 6F 20 44 44 53 20 77 6F 72 6C 64 21 00 70 6C 65 
+Micro XRCE-DDS Client Custom transport: read 13 B
+81 00 00 00 0A 01 05 00 06 00 00 00 80 
+Micro XRCE-DDS Client Custom transport: read 0 B
+Send topic: Hello DDS world!, id: 6
+Micro XRCE-DDS Client Custom transport: wrote 40 B
+81 80 06 00 07 01 1D 00 00 13 00 15 06 00 00 00 11 00 00 00 48 65 6C 6C 6F 20 44 44 53 20 77 6F 72 6C 64 21 00 00 00 00 
+Micro XRCE-DDS Client Custom transport: read 13 B
+81 00 00 00 0A 01 05 00 07 00 00 00 80 
