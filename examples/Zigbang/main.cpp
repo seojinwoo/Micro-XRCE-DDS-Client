@@ -17,7 +17,7 @@
 #include <uxr/client/client.h>
 #include <ucdr/microcdr.h>
 
-#include <stdio.h> //printf
+#include <stdio.h>  //printf
 #include <string.h> //strcmp
 #include <stdlib.h> //atoi
 
@@ -35,23 +35,21 @@
 
 #define TOPIC_COUNT 100
 
-
-extern void PubTask(char* ip, char* port, int index);
-extern void SubTask(char* ip, char* port, int index);
-
+extern void PubTask(char *ip, char *port, int index);
+extern void SubTask(char *ip, char *port, int index);
 
 int main(
-        int args,
-        char** argv)
+    int args,
+    char **argv)
 {
-    char* ip;
-    char* port;
+    char *ip;
+    char *port;
 
     // CLI
     if (3 > args || 0 == atoi(argv[2]))
     {
-        ip = (char*)"192.168.1.160"; // mufia
-        //ip = (char*)"192.168.100.118"; // Soma
+        ip = (char *)"192.168.1.160"; // mufia
+        // ip = (char*)"192.168.100.118"; // Soma
         port = (char *)"2019";
     }
     else
@@ -64,25 +62,37 @@ int main(
     // Common
     // Make Topics
     dicTopics[1] = std::pair<std::string, std::string>{"HelloWorldTopic", TOPIC_TYPE};
-    for (int i = 2; i <= TOPIC_COUNT; i++) {
-        dicTopics[i] = std::pair<std::string, std::string>{ "HelloWorldTopic" + std::to_string(i), TOPIC_TYPE };
+    for (int i = 2; i <= TOPIC_COUNT; i++)
+    {
+        dicTopics[i] = std::pair<std::string, std::string>{"HelloWorldTopic" + std::to_string(i), TOPIC_TYPE};
     }
-    
+
     threadRun.clear_bit(EXIT_PROGRAM_ID);
 
-    std::thread pubThread(PubTask, ip, port, PUB_STATUS_ID);
-    while (threadRun.get_bit(PUB_STATUS_ID) != true);
-    while (threadIdle.get_bit(PUB_STATUS_ID) != true);
+    if (true)
+    {
+        std::thread pubThread(PubTask, ip, port, PUB_STATUS_ID);
+        while (threadRun.get_bit(PUB_STATUS_ID) != true)
+            ;
+        while (threadIdle.get_bit(PUB_STATUS_ID) != true)
+            ;
+    }
 
-    std::thread subThread(SubTask, ip, port, SUB_STATUS_ID);
-    while (threadRun.get_bit(SUB_STATUS_ID) != true);
-    while (threadIdle.get_bit(SUB_STATUS_ID) != true);
+    if (true)
+    {
+        std::thread subThread(SubTask, ip, port, SUB_STATUS_ID);
+        while (threadRun.get_bit(SUB_STATUS_ID) != true)
+            ;
+        while (threadIdle.get_bit(SUB_STATUS_ID) != true)
+            ;
+    }
 
     // Write topics
     bool connected = true;
 
     while (connected)
     {
+        /*
         if ((threadRun.get_bit(PUB_STATUS_ID) == false) || (threadRun.get_bit(SUB_STATUS_ID) == false))
         {
             threadRun.set_bit(EXIT_PROGRAM_ID);
@@ -92,8 +102,8 @@ int main(
         {
             connected = false;
         }
+        */
     }
 
     return 0;
 }
-

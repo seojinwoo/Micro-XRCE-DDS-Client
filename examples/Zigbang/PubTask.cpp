@@ -1,7 +1,7 @@
 
 #include "global.h"
 
-void PubTask(char* ip, char* port, int index)
+void PubTask(char *ip, char *port, int index)
 {
     zigbangUXR uxrPubOnly;
     uint32_t count = 0;
@@ -11,23 +11,34 @@ void PubTask(char* ip, char* port, int index)
     {
         printf("Init Participant Error\n");
     }
-    else 
+    else
     {
+        if (uxrPubOnly.RegisterEntity() == false)
+        {
+            printf("Error at RegisterEntity Pub\n");
+        }
+
         // Link Topic
         {
             std::map<uint8_t, std::pair<std::string, std::string>>::iterator it;
             for (it = dicTopics.begin(); it != dicTopics.end(); it++)
             {
                 uxrPubOnly.LinkPub(it->first, it->second.first.c_str(), it->second.second.c_str());
+                // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                if (uxrPubOnly.RegisterEntity() == false)
+                {
+                    printf("Error at RegisterEntity Pub\n");
+                }
             }
         }
 
         // Send create entities message and wait its status
+        /*
         while (uxrPubOnly.RegisterEntity() == false)
         {
             printf("Error at RegisterEntity Pub\n");
-        }
-        
+        }*/
+
         {
             bool connected = true;
             uint32_t count = 0;
@@ -49,7 +60,8 @@ void PubTask(char* ip, char* port, int index)
 
                     connected = uxr_run_session_time(&uxrPubOnly.session, 500);
 
-                    if (connected == false) {
+                    if (connected == false)
+                    {
                         break;
                     }
 
@@ -61,7 +73,7 @@ void PubTask(char* ip, char* port, int index)
             }
         }
     }
-    
+
     printf("Exit Pub Thread\n");
 
     threadRun.clear_bit(index);

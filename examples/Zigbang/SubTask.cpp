@@ -2,26 +2,30 @@
 #include "global.h"
 
 void on_topic(
-    uxrSession* session,
+    uxrSession *session,
     uxrObjectId object_id,
     uint16_t request_id,
     uxrStreamId stream_id,
-    struct ucdrBuffer* ub,
+    struct ucdrBuffer *ub,
     uint16_t length,
-    void* args)
+    void *args)
 {
-    (void)session; (void)object_id; (void)request_id; (void)stream_id; (void)length;
+    (void)session;
+    (void)object_id;
+    (void)request_id;
+    (void)stream_id;
+    (void)length;
 
     HelloWorld topic;
     HelloWorld_deserialize_topic(ub, &topic);
 
     // printf("Received topic: %s, id: %i\n", topic.message, topic.index);
 
-    uint32_t* count_ptr = (uint32_t*)args;
+    uint32_t *count_ptr = (uint32_t *)args;
     (*count_ptr)++;
 }
 
-void SubTask(char* ip, char* port, int index)
+void SubTask(char *ip, char *port, int index)
 {
     zigbangUXR uxrSubOnly;
     uint32_t count = 0;
@@ -33,6 +37,11 @@ void SubTask(char* ip, char* port, int index)
     }
     else
     {
+        if (uxrSubOnly.RegisterEntity() == false)
+        {
+            printf("Error at RegisterEntity Sub\n");
+        }
+
         printf("Participant ID: %x\n", PARTICIPANT_ID | PARTICIPANT_ID_SUB);
 
         uxr_set_topic_callback(&uxrSubOnly.session, on_topic, &count);
@@ -43,15 +52,22 @@ void SubTask(char* ip, char* port, int index)
             for (it = dicTopics.begin(); it != dicTopics.end(); it++)
             {
                 uxrSubOnly.LinkSub(it->first, it->second.first.c_str(), it->second.second.c_str());
+
+                if (uxrSubOnly.RegisterEntity() == false)
+                {
+                    printf("Error at RegisterEntity Sub\n");
+                }
             }
         }
 
         // Send create entities message and wait its status
-        if (uxrSubOnly.RegisterEntity() == false)
+        /*
+        while (uxrSubOnly.RegisterEntity() == false)
         {
             printf("Error at RegisterEntity Sub\n");
         }
-        else 
+        */
+
         {
             uxrSubOnly.StartAllSubscribe();
             bool connected = true;

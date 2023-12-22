@@ -45,9 +45,9 @@ public:
     std::map<uint8_t, ReaderInformation> dicReader;
     std::list<std::pair<uint16_t, std::string>> listRequest;
 
-
     // Transport Stream
     uxrUDPTransport transport;
+    uxrCustomTransport custom_transport;
     uxrStreamId reliable_out;
     uxrStreamId reliable_in;
     uint8_t *output_reliable_stream_buffer;
@@ -71,33 +71,29 @@ public:
     // debug level
     uint8_t DebugLevel = 1;
 
-    bool InitParticipant(char* ip, char* port, uint32_t inBufferLength, uint32_t outBufferLength, uint32_t key);
-    void LinkSub(uint8_t topicId, const char* topicName, const char* dataType);
-    void LinkPub(uint8_t topicId, const char* topicName, const char* dataType);
+    bool InitParticipant(char *ip, char *port, uint32_t inBufferLength, uint32_t outBufferLength, uint32_t key);
+    void LinkSub(uint8_t topicId, const char *topicName, const char *dataType);
+    void LinkPub(uint8_t topicId, const char *topicName, const char *dataType);
     bool RegisterEntity();
     void PubTopic(uint8_t topicId, HelloWorld topic);
     void StartSubscribe(uint8_t key);
     void StartAllSubscribe();
     void Exit();
 
-
 private:
-    bool InitTrasport(char* ip, char* port);
+    bool InitTrasport(char *ip, char *port);
     bool InitSession(uint32_t key);
     void MakeStream(uint32_t inBufferLength, uint32_t outBufferLength);
     void CreateEntity(uint16_t id);
 
-    void MakeTopic(uint8_t topicId, const char* topicName, const char* dataType);
+    void MakeTopic(uint8_t topicId, const char *topicName, const char *dataType);
     void MakePublisher(uint8_t publisherId);
-    void MakeDataWriter(uint8_t datawriterId, const char* topicName, const char* dataType);
+    void MakeDataWriter(uint8_t datawriterId, const char *topicName, const char *dataType);
 
     void MakeSubscriber(uint8_t publisherId);
-    void MakeDataReader(uint8_t datareaderId, const char* topicName, const char* dataType);
+    void MakeDataReader(uint8_t datareaderId, const char *topicName, const char *dataType);
 
     void AddRequest(uint16_t reqValue, std::string reqName);
-
 };
 
-
-
-#endif 
+#endif

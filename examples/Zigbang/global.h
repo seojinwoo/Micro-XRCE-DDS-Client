@@ -12,21 +12,22 @@
 #define PARTICIPANT_ID 0xCCCC1100 // lInux
 #endif
 
-#define STREAM_HISTORY  1024
-#define BUFFER_SIZE     UXR_CONFIG_UDP_TRANSPORT_MTU* STREAM_HISTORY
+#define STREAM_HISTORY 1024
+#define BUFFER_SIZE UXR_CONFIG_UDP_TRANSPORT_MTU *STREAM_HISTORY
 
-#define MAX_REQ_ENTITY 0x10
+#define MAX_REQ_ENTITY 0x100
 
 #define PUB_STATUS_ID 0
 #define SUB_STATUS_ID 1
 
 #define EXIT_PROGRAM_ID 31
 
-
 #include "uxrDDS.h"
 #include "ThreadSafeBitChange.h"
 
 #include <cstring>
+#include <thread>
+#include <chrono>
 
 #ifndef EXTERN
 #define EXTERN extern
