@@ -66,7 +66,7 @@ typedef struct RFIDReadEvent
     TimeStamp stamp;
     RFIDModeType_cdr mode;
     RFIDReadEventType_cdr event;
-    char user_id[20][255];
+    char user_id[255];
 
 } RFIDReadEvent;
 
@@ -83,7 +83,7 @@ uint32_t RFIDReadEvent_size_of_topic(const RFIDReadEvent* topic, uint32_t size);
 typedef struct RFIDRequest
 {
     RFIDReadCommandType_cdr command;
-    char security_key[128][255];
+    char security_key[255];
 
 } RFIDRequest;
 

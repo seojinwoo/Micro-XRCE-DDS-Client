@@ -71,7 +71,7 @@ uint32_t AIWebRTCEvent_size_of_topic(const AIWebRTCEvent* topic, uint32_t size);
 typedef struct AIWebRTCRequest
 {
     AIWebRTCCommand_cdr command;
-    char destination[20][255];
+    char destination[255];
 
     uint16_t timeout_sec;
 } AIWebRTCRequest;
@@ -90,7 +90,7 @@ typedef struct AIWebRTCResponse
 {
     AIWebRTCCommand_cdr command;
     ErrorCode_cdr code;
-    char destination[20][255];
+    char destination[255];
 
     uint16_t timeout_sec;
 } AIWebRTCResponse;

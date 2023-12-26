@@ -36,10 +36,8 @@ bool RFIDReadEvent_serialize_topic(ucdrBuffer* writer, const RFIDReadEvent* topi
 
         success &= ucdr_serialize_uint32_t(writer, (uint32_t)topic->event);
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            success &= ucdr_serialize_string(writer, topic->user_id[i]);
-        }
+        success &= ucdr_serialize_string(writer, topic->user_id);
+
     return success && !writer->error;
 }
 
@@ -52,10 +50,8 @@ bool RFIDReadEvent_deserialize_topic(ucdrBuffer* reader, RFIDReadEvent* topic)
 
         success &= ucdr_deserialize_uint32_t(reader, (uint32_t)&topic->event);
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            success &= ucdr_deserialize_string(reader, topic->user_id[i], 255);
-        }
+        success &= ucdr_deserialize_string(reader, topic->user_id, 255);
+
     return success && !reader->error;
 }
 
@@ -67,10 +63,8 @@ uint32_t RFIDReadEvent_size_of_topic(const RFIDReadEvent* topic, uint32_t size)
 
         size += ucdr_alignment(size, 4) + 4;
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->user_id[i]) + 1;
-        }
+        size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->user_id) + 1;
+
     return size - previousSize;
 }
 
@@ -80,10 +74,8 @@ bool RFIDRequest_serialize_topic(ucdrBuffer* writer, const RFIDRequest* topic)
 
         success &= ucdr_serialize_uint32_t(writer, (uint32_t)topic->command);
 
-        for(size_t i = 0; i < sizeof(topic->security_key) / 255; ++i)
-        {
-            success &= ucdr_serialize_string(writer, topic->security_key[i]);
-        }
+        success &= ucdr_serialize_string(writer, topic->security_key);
+
     return success && !writer->error;
 }
 
@@ -93,10 +85,8 @@ bool RFIDRequest_deserialize_topic(ucdrBuffer* reader, RFIDRequest* topic)
 
         success &= ucdr_deserialize_uint32_t(reader, (uint32_t)&topic->command);
 
-        for(size_t i = 0; i < sizeof(topic->security_key) / 255; ++i)
-        {
-            success &= ucdr_deserialize_string(reader, topic->security_key[i], 255);
-        }
+        success &= ucdr_deserialize_string(reader, topic->security_key, 255);
+
     return success && !reader->error;
 }
 
@@ -105,10 +95,8 @@ uint32_t RFIDRequest_size_of_topic(const RFIDRequest* topic, uint32_t size)
     uint32_t previousSize = size;
         size += ucdr_alignment(size, 4) + 4;
 
-        for(size_t i = 0; i < sizeof(topic->security_key) / 255; ++i)
-        {
-            size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->security_key[i]) + 1;
-        }
+        size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->security_key) + 1;
+
     return size - previousSize;
 }
 

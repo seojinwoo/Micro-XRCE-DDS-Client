@@ -57,7 +57,7 @@ typedef struct AIFaceRecognitionEvent
 {
     TimeStamp stamp;
     AIFaceRecognitionEventType_cdr event;
-    char user_id[40][255];
+    char user_id[255];
 
     float confidence;
     float spoofing_rate;
@@ -76,7 +76,7 @@ uint32_t AIFaceRecognitionEvent_size_of_topic(const AIFaceRecognitionEvent* topi
 typedef struct AIFaceRecognitionRequest
 {
     AIFaceRecognitionCommand_cdr command;
-    char user_id[40][255];
+    char user_id[255];
 
     uint16_t timeout_sec;
 } AIFaceRecognitionRequest;

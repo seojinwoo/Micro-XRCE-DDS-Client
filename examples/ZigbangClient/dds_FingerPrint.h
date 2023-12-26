@@ -59,7 +59,7 @@ typedef struct FingerPrintEvent
 {
     TimeStamp stamp;
     FingerPrintEventType_cdr event;
-    char user_id[40][255];
+    char user_id[255];
 
 } FingerPrintEvent;
 
@@ -77,7 +77,7 @@ typedef struct FingerPrintRequest
 {
     TimeStamp stamp;
     FingerPrintCommandType_cdr command;
-    char user_id[40][255];
+    char user_id[255];
 
     uint16_t timeout_sec;
 } FingerPrintRequest;

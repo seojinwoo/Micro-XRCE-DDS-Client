@@ -54,7 +54,7 @@ typedef struct AIQREvent
 {
     TimeStamp stamp;
     AIQREventType_cdr event;
-    char read_string[256][255];
+    char read_string[255];
 
 } AIQREvent;
 

@@ -61,10 +61,8 @@ bool AIWebRTCRequest_serialize_topic(ucdrBuffer* writer, const AIWebRTCRequest* 
 
         success &= ucdr_serialize_uint32_t(writer, (uint32_t)topic->command);
 
-        for(size_t i = 0; i < sizeof(topic->destination) / 255; ++i)
-        {
-            success &= ucdr_serialize_string(writer, topic->destination[i]);
-        }
+        success &= ucdr_serialize_string(writer, topic->destination);
+
         success &= ucdr_serialize_uint16_t(writer, topic->timeout_sec);
 
     return success && !writer->error;
@@ -76,10 +74,8 @@ bool AIWebRTCRequest_deserialize_topic(ucdrBuffer* reader, AIWebRTCRequest* topi
 
         success &= ucdr_deserialize_uint32_t(reader, (uint32_t)&topic->command);
 
-        for(size_t i = 0; i < sizeof(topic->destination) / 255; ++i)
-        {
-            success &= ucdr_deserialize_string(reader, topic->destination[i], 255);
-        }
+        success &= ucdr_deserialize_string(reader, topic->destination, 255);
+
         success &= ucdr_deserialize_uint16_t(reader, &topic->timeout_sec);
 
     return success && !reader->error;
@@ -90,10 +86,8 @@ uint32_t AIWebRTCRequest_size_of_topic(const AIWebRTCRequest* topic, uint32_t si
     uint32_t previousSize = size;
         size += ucdr_alignment(size, 4) + 4;
 
-        for(size_t i = 0; i < sizeof(topic->destination) / 255; ++i)
-        {
-            size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->destination[i]) + 1;
-        }
+        size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->destination) + 1;
+
         size += ucdr_alignment(size, 2) + 2;
 
     return size - previousSize;
@@ -107,10 +101,8 @@ bool AIWebRTCResponse_serialize_topic(ucdrBuffer* writer, const AIWebRTCResponse
 
         success &= ucdr_serialize_uint32_t(writer, (uint32_t)topic->code);
 
-        for(size_t i = 0; i < sizeof(topic->destination) / 255; ++i)
-        {
-            success &= ucdr_serialize_string(writer, topic->destination[i]);
-        }
+        success &= ucdr_serialize_string(writer, topic->destination);
+
         success &= ucdr_serialize_uint16_t(writer, topic->timeout_sec);
 
     return success && !writer->error;
@@ -124,10 +116,8 @@ bool AIWebRTCResponse_deserialize_topic(ucdrBuffer* reader, AIWebRTCResponse* to
 
         success &= ucdr_deserialize_uint32_t(reader, (uint32_t)&topic->code);
 
-        for(size_t i = 0; i < sizeof(topic->destination) / 255; ++i)
-        {
-            success &= ucdr_deserialize_string(reader, topic->destination[i], 255);
-        }
+        success &= ucdr_deserialize_string(reader, topic->destination, 255);
+
         success &= ucdr_deserialize_uint16_t(reader, &topic->timeout_sec);
 
     return success && !reader->error;
@@ -140,10 +130,8 @@ uint32_t AIWebRTCResponse_size_of_topic(const AIWebRTCResponse* topic, uint32_t 
 
         size += ucdr_alignment(size, 4) + 4;
 
-        for(size_t i = 0; i < sizeof(topic->destination) / 255; ++i)
-        {
-            size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->destination[i]) + 1;
-        }
+        size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->destination) + 1;
+
         size += ucdr_alignment(size, 2) + 2;
 
     return size - previousSize;

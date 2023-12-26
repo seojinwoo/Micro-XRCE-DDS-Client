@@ -53,7 +53,7 @@ typedef struct QRReadEvent
 {
     TimeStamp stamp;
     QREventType_cdr event;
-    char read_string[256][255];
+    char read_string[255];
 
 } QRReadEvent;
 

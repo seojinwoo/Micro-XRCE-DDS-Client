@@ -33,10 +33,8 @@ bool AIQREvent_serialize_topic(ucdrBuffer* writer, const AIQREvent* topic)
         success &= TimeStamp_serialize_topic(writer, &topic->stamp);
         success &= ucdr_serialize_uint32_t(writer, (uint32_t)topic->event);
 
-        for(size_t i = 0; i < sizeof(topic->read_string) / 255; ++i)
-        {
-            success &= ucdr_serialize_string(writer, topic->read_string[i]);
-        }
+        success &= ucdr_serialize_string(writer, topic->read_string);
+
     return success && !writer->error;
 }
 
@@ -47,10 +45,8 @@ bool AIQREvent_deserialize_topic(ucdrBuffer* reader, AIQREvent* topic)
         success &= TimeStamp_deserialize_topic(reader, &topic->stamp);
         success &= ucdr_deserialize_uint32_t(reader, (uint32_t)&topic->event);
 
-        for(size_t i = 0; i < sizeof(topic->read_string) / 255; ++i)
-        {
-            success &= ucdr_deserialize_string(reader, topic->read_string[i], 255);
-        }
+        success &= ucdr_deserialize_string(reader, topic->read_string, 255);
+
     return success && !reader->error;
 }
 
@@ -60,10 +56,8 @@ uint32_t AIQREvent_size_of_topic(const AIQREvent* topic, uint32_t size)
         size += TimeStamp_size_of_topic(&topic->stamp, size);
         size += ucdr_alignment(size, 4) + 4;
 
-        for(size_t i = 0; i < sizeof(topic->read_string) / 255; ++i)
-        {
-            size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->read_string[i]) + 1;
-        }
+        size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->read_string) + 1;
+
     return size - previousSize;
 }
 
