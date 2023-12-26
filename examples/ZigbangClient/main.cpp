@@ -76,7 +76,7 @@ int main(
     const char *topic_xml = "<dds>"
                             "<topic>"
                             "<name>HelloWorldTopic</name>"
-                            "<dataType>HelloWorld</dataType>"
+                            "<dataType>TimeStamp</dataType>"
                             "</topic>"
                             "</dds>";
     uint16_t topic_req = uxr_buffer_create_topic_xml(&session, reliable_out, topic_id, participant_id, topic_xml,
@@ -93,7 +93,7 @@ int main(
                                  "<topic>"
                                  "<kind>NO_KEY</kind>"
                                  "<name>HelloWorldTopic</name>"
-                                 "<dataType>HelloWorld</dataType>"
+                                 "<dataType>TimeStamp</dataType>"
                                  "</topic>"
                                  "</data_writer>"
                                  "</dds>";
@@ -114,17 +114,23 @@ int main(
     // Write topics
     bool connected = true;
     uint32_t count = 0;
+
+    struct timespec ts;
     while (connected)
     {
-        HelloWorld topic = {
-            ++count, "Hello DDS world!"};
+        TimeStamp topic;
+
+        clock_gettime(CLOCK_REALTIME, &ts);
+
+        topic.sec = (uint32_t)ts.tv_sec;
+        topic.sec = (uint32_t)ts.tv_nsec;
 
         ucdrBuffer ub;
-        uint32_t topic_size = HelloWorld_size_of_topic(&topic, 0);
+        uint32_t topic_size = TimeStamp_size_of_topic(&topic, 0);
         uxr_prepare_output_stream(&session, reliable_out, datawriter_id, &ub, topic_size);
-        HelloWorld_serialize_topic(&ub, &topic);
+        TimeStamp_serialize_topic(&ub, &topic);
 
-        printf("Send topic: %s, id: %i\n", topic.message, topic.index);
+        printf("Send topic: sec %u, nano: %u\n", topic.sec, topic.nanosec);
         connected = uxr_run_session_time(&session, 1000);
     }
 

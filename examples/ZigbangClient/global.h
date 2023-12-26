@@ -31,7 +31,21 @@
 #include "ThreadSafeQueue.h"
 #include "StreamPacket.h"
 
-#include "HelloWorld.h"
+#include "dds_AIFaceRecognition.h"
+#include "dds_AIQR.h"
+#include "dds_AISpeaker.h"
+#include "dds_AISystem.h"
+#include "dds_AIWebRTC.h"
+#include "dds_Buzzer.h"
+#include "dds_Common.h"
+#include "dds_ErrorCode.h"
+#include "dds_FingerPrint.h"
+#include "dds_Log.h"
+#include "dds_Mortice.h"
+#include "dds_QR.h"
+#include "dds_RFID.h"
+#include "dds_Sensor.h"
+#include "dds_TimeStamp.h"
 
 #include <uxr/client/profile/transport/custom/custom_transport.h>
 #include <uxr/client/client.h>
