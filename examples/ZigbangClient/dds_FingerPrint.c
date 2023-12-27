@@ -33,10 +33,8 @@ bool FingerPrintEvent_serialize_topic(ucdrBuffer* writer, const FingerPrintEvent
         success &= TimeStamp_serialize_topic(writer, &topic->stamp);
         success &= ucdr_serialize_uint32_t(writer, (uint32_t)topic->event);
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            success &= ucdr_serialize_string(writer, topic->user_id[i]);
-        }
+        success &= ucdr_serialize_string(writer, topic->user_id);
+
     return success && !writer->error;
 }
 
@@ -47,10 +45,8 @@ bool FingerPrintEvent_deserialize_topic(ucdrBuffer* reader, FingerPrintEvent* to
         success &= TimeStamp_deserialize_topic(reader, &topic->stamp);
         success &= ucdr_deserialize_uint32_t(reader, (uint32_t)&topic->event);
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            success &= ucdr_deserialize_string(reader, topic->user_id[i], 255);
-        }
+        success &= ucdr_deserialize_string(reader, topic->user_id, 255);
+
     return success && !reader->error;
 }
 
@@ -60,10 +56,8 @@ uint32_t FingerPrintEvent_size_of_topic(const FingerPrintEvent* topic, uint32_t 
         size += TimeStamp_size_of_topic(&topic->stamp, size);
         size += ucdr_alignment(size, 4) + 4;
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->user_id[i]) + 1;
-        }
+        size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->user_id) + 1;
+
     return size - previousSize;
 }
 
@@ -74,10 +68,8 @@ bool FingerPrintRequest_serialize_topic(ucdrBuffer* writer, const FingerPrintReq
         success &= TimeStamp_serialize_topic(writer, &topic->stamp);
         success &= ucdr_serialize_uint32_t(writer, (uint32_t)topic->command);
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            success &= ucdr_serialize_string(writer, topic->user_id[i]);
-        }
+        success &= ucdr_serialize_string(writer, topic->user_id);
+
         success &= ucdr_serialize_uint16_t(writer, topic->timeout_sec);
 
     return success && !writer->error;
@@ -90,10 +82,8 @@ bool FingerPrintRequest_deserialize_topic(ucdrBuffer* reader, FingerPrintRequest
         success &= TimeStamp_deserialize_topic(reader, &topic->stamp);
         success &= ucdr_deserialize_uint32_t(reader, (uint32_t)&topic->command);
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            success &= ucdr_deserialize_string(reader, topic->user_id[i], 255);
-        }
+        success &= ucdr_deserialize_string(reader, topic->user_id, 255);
+
         success &= ucdr_deserialize_uint16_t(reader, &topic->timeout_sec);
 
     return success && !reader->error;
@@ -105,10 +95,8 @@ uint32_t FingerPrintRequest_size_of_topic(const FingerPrintRequest* topic, uint3
         size += TimeStamp_size_of_topic(&topic->stamp, size);
         size += ucdr_alignment(size, 4) + 4;
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->user_id[i]) + 1;
-        }
+        size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->user_id) + 1;
+
         size += ucdr_alignment(size, 2) + 2;
 
     return size - previousSize;

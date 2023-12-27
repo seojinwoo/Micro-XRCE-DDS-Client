@@ -33,10 +33,8 @@ bool AIFaceRecognitionEvent_serialize_topic(ucdrBuffer* writer, const AIFaceReco
         success &= TimeStamp_serialize_topic(writer, &topic->stamp);
         success &= ucdr_serialize_uint32_t(writer, (uint32_t)topic->event);
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            success &= ucdr_serialize_string(writer, topic->user_id[i]);
-        }
+        success &= ucdr_serialize_string(writer, topic->user_id);
+
         success &= ucdr_serialize_float(writer, topic->confidence);
 
         success &= ucdr_serialize_float(writer, topic->spoofing_rate);
@@ -51,10 +49,8 @@ bool AIFaceRecognitionEvent_deserialize_topic(ucdrBuffer* reader, AIFaceRecognit
         success &= TimeStamp_deserialize_topic(reader, &topic->stamp);
         success &= ucdr_deserialize_uint32_t(reader, (uint32_t)&topic->event);
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            success &= ucdr_deserialize_string(reader, topic->user_id[i], 255);
-        }
+        success &= ucdr_deserialize_string(reader, topic->user_id, 255);
+
         success &= ucdr_deserialize_float(reader, &topic->confidence);
 
         success &= ucdr_deserialize_float(reader, &topic->spoofing_rate);
@@ -68,10 +64,8 @@ uint32_t AIFaceRecognitionEvent_size_of_topic(const AIFaceRecognitionEvent* topi
         size += TimeStamp_size_of_topic(&topic->stamp, size);
         size += ucdr_alignment(size, 4) + 4;
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->user_id[i]) + 1;
-        }
+        size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->user_id) + 1;
+
         size += ucdr_alignment(size, 4) + 4;
 
         size += ucdr_alignment(size, 4) + 4;
@@ -85,10 +79,8 @@ bool AIFaceRecognitionRequest_serialize_topic(ucdrBuffer* writer, const AIFaceRe
 
         success &= ucdr_serialize_uint32_t(writer, (uint32_t)topic->command);
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            success &= ucdr_serialize_string(writer, topic->user_id[i]);
-        }
+        success &= ucdr_serialize_string(writer, topic->user_id);
+
         success &= ucdr_serialize_uint16_t(writer, topic->timeout_sec);
 
     return success && !writer->error;
@@ -100,10 +92,8 @@ bool AIFaceRecognitionRequest_deserialize_topic(ucdrBuffer* reader, AIFaceRecogn
 
         success &= ucdr_deserialize_uint32_t(reader, (uint32_t)&topic->command);
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            success &= ucdr_deserialize_string(reader, topic->user_id[i], 255);
-        }
+        success &= ucdr_deserialize_string(reader, topic->user_id, 255);
+
         success &= ucdr_deserialize_uint16_t(reader, &topic->timeout_sec);
 
     return success && !reader->error;
@@ -114,10 +104,8 @@ uint32_t AIFaceRecognitionRequest_size_of_topic(const AIFaceRecognitionRequest* 
     uint32_t previousSize = size;
         size += ucdr_alignment(size, 4) + 4;
 
-        for(size_t i = 0; i < sizeof(topic->user_id) / 255; ++i)
-        {
-            size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->user_id[i]) + 1;
-        }
+        size += ucdr_alignment(size, 4) + 4 + (uint32_t)strlen(topic->user_id) + 1;
+
         size += ucdr_alignment(size, 2) + 2;
 
     return size - previousSize;
