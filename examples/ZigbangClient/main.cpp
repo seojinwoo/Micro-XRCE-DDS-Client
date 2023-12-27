@@ -32,10 +32,10 @@ int main(
     uxr_set_custom_transport_callbacks(
         &transport,
         false,
-        my_custom_transport_open,
-        my_custom_transport_close,
-        my_custom_transport_write,
-        my_custom_transport_read);
+        zigbang_custom_transport_open,
+        zigbang_custom_transport_close,
+        zigbang_custom_transport_write,
+        zigbang_custom_transport_read);
 
     if (!uxr_init_custom_transport(&transport, NULL))
     {
