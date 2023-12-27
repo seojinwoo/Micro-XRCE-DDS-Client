@@ -73,7 +73,7 @@ void UdpTask(char *ip, char *port, int index)
 
             if (aPacket.isValid)
             {
-                std::cout << aPacket.ShowAllInfo();
+                zigbang_log(LOG_INFO, aPacket.ShowAllInfo());
 
                 SourceAddress = toSend[1];
                 RemoteAddress = toSend[2];
@@ -82,7 +82,7 @@ void UdpTask(char *ip, char *port, int index)
                 toSend.erase(toSend.begin(), toSend.begin() + 5);
                 toSend.erase(toSend.end() - 2, toSend.end());
 
-                std::cout << "Send >> UDP >> Server " << std::dec << toSend.size() << " bytes to " << inet_ntoa(dest_addr.sin_addr) << ":" << ntohs(dest_addr.sin_port) << std::endl;
+                zigbang_log(LOG_WARN, "Send >> UDP >> Server " + std::to_string(toSend.size()) + " bytes to " + std::string(inet_ntoa(dest_addr.sin_addr)) + ":" + std::to_string(ntohs(dest_addr.sin_port)));
 
                 sendto(sockfd, toSend.data(), toSend.size(), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
             }
@@ -104,7 +104,7 @@ void UdpTask(char *ip, char *port, int index)
             ssize_t nbytes = recvfrom(sockfd, buffer.data(), buffer.size(), 0, (struct sockaddr *)&src_addr, &addrlen);
 
             // Output the received data
-            std::cout << "Received << UDP << Server " << nbytes << " bytes from " << inet_ntoa(src_addr.sin_addr) << ":" << ntohs(src_addr.sin_port) << std::endl;
+            zigbang_log(LOG_WARN, "Received << UDP << Server " + std::to_string(nbytes) + " bytes from " + std::string(inet_ntoa(src_addr.sin_addr)) + ":" + std::to_string(ntohs(src_addr.sin_port)));
 
             // Store the received data in a vector
             std::vector<uint8_t> receivedData(buffer.begin(), buffer.begin() + nbytes);
@@ -126,22 +126,22 @@ void UdpTask(char *ip, char *port, int index)
             GetFromUdp.SetFrame(receivedData);
             if (GetFromUdp.isValid)
             {
-                std::cout << "Valid to send" << std::endl;
+                zigbang_log(LOG_INFO, "Valid to send");
             }
             else
             {
-                std::cout << "Invalid to send" << std::endl;
+                zigbang_log(LOG_WARN, "Invalid to send");
             }
 
             TxSerialQueue[0].push(receivedData);
         }
         else if (result == 0)
         {
-            // std::cout << "Timeout waiting for data." << std::endl;
+            // zigbang_log(LOG_FATAL, "Timeout waiting for data.");
         }
         else
         {
-            std::cerr << "Error waiting for data." << std::endl;
+            zigbang_log(LOG_FATAL, "Error waiting for data.");
         }
     }
 }

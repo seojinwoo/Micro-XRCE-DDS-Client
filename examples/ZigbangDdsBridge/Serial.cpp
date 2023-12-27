@@ -14,32 +14,18 @@ void rx_thread()
 {
     bool DebugHere = true;
     // Infinite loop that runs the interval job
-    std::cout << "Start Serial RX" << std::endl;
+    zigbang_log(LOG_WARN, "Start Serial RX");
+
     while (true)
     {
         // Read Bytes
         uint8_t buffer;
         boost::asio::read(serialPort, boost::asio::buffer(&buffer, 1));
 
-        if (buffer == 0x7E)
-        {
-            std::cout << std::endl;
-        }
-
-        if (DebugHere)
-        {
-            std::cout << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(buffer) << " ";
-            std::cout.flush();
-        }
-        else
-        {
-            std::cout << ".";
-            std::cout.flush();
-        }
-
         RxQueue.push(buffer);
     }
-    std::cout << "Exit Serial RX" << std::endl;
+
+    zigbang_log(LOG_WARN, "Exit Serial RX");
 }
 
 std::vector<uint8_t> HandlingSerial(uint8_t one)
@@ -59,11 +45,6 @@ std::vector<uint8_t> HandlingSerial(uint8_t one)
     }
 
     lastTime = currentTime; // Update lastTime to current time
-
-    if (DebugHere)
-    {
-        std::cout << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(one) << " ";
-    }
 
     SavedToReturn.push_back(one);
     switch (Step)
@@ -142,7 +123,7 @@ std::vector<uint8_t> HandlingSerial(uint8_t one)
 
     if (DebugHere)
     {
-        std::cout << "Step: " << Step << std::endl;
+        zigbang_log(LOG_INFO, (static_cast<std::ostringstream &&>(std::ostringstream() << "Step: " << static_cast<int>(Step))).str());
     }
 
     if (Step == 99 || Step == 6)
@@ -212,7 +193,7 @@ void SerialTask(char *dev, int index)
 
     boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 2019);
 
-    std::cout << "Serial Open " << dev << std::endl;
+    zigbang_log(LOG_WARN, "Serial Open " + std::string(dev));
 
     std::thread rx485(rx_thread);
 
@@ -224,17 +205,12 @@ void SerialTask(char *dev, int index)
             std::vector<uint8_t> toSend;
             TxSerialQueue[0].wait_and_pop(toSend);
 
-            std::cout << "Client << Serial << Send " << std::dec << toSend.size() << " bytes to Serial" << std::endl;
-
-            // boost::asio::write(serialPort, boost::asio::buffer(toSend));
+            zigbang_log(LOG_WARN, "Client << Serial << Send " + std::to_string(toSend.size()) + " bytes to Serial");
 
             for (std::size_t i = 0; i < toSend.size(); ++i)
             {
                 // Write one byte to the serial port
                 boost::asio::write(serialPort, boost::asio::buffer(&toSend[i], 1));
-
-                // Alternatively, you can use the put_char function
-                // serialPort.put_char(toSend[i]);
 
                 // Optionally, add a delay between each write
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -250,8 +226,7 @@ void SerialTask(char *dev, int index)
 
             if (one.size() >= 7)
             {
-                std::cout << std::endl
-                          << "Client >> Serial >> Received " << std::dec << one.size() << " bytes" << std::endl;
+                zigbang_log(LOG_WARN, "Client >> Serial >> Received " + std::to_string(one.size()) + " bytes to Serial");
                 TxUdpQueue.push(one);
             }
         }

@@ -247,7 +247,6 @@ std::vector<uint8_t> HandlingSerial(uint8_t one)
 
     if (DebugHere)
     {
-        std::cout << "Step: " << Step << std::endl;
         zigbang_log(LOG_INFO, (static_cast<std::ostringstream &&>(std::ostringstream() << "Step: " << static_cast<int>(Step))).str());
     }
 
