@@ -15,6 +15,8 @@
 #define EXTERN
 #include "global.h"
 
+extern void zigbang_log(LogLevel level, const std::string &message);
+
 int main(
     int args,
     char **argv)
@@ -24,7 +26,7 @@ int main(
 
     if (!InitCustomTransport())
     {
-        std::cout << "Init Error" << std::endl;
+        zigbang_log(LOG_FATAL, "Init Error");
         return 1;
     }
     // Transport
@@ -32,14 +34,14 @@ int main(
     uxr_set_custom_transport_callbacks(
         &transport,
         false,
-        my_custom_transport_open,
-        my_custom_transport_close,
-        my_custom_transport_write,
-        my_custom_transport_read);
+        zigbang_custom_transport_open,
+        zigbang_custom_transport_close,
+        zigbang_custom_transport_write,
+        zigbang_custom_transport_read);
 
     if (!uxr_init_custom_transport(&transport, NULL))
     {
-        printf("Error at create transport.\n");
+        zigbang_log(LOG_FATAL, "Error at create transport");
         return 1;
     }
 
@@ -48,7 +50,7 @@ int main(
     uxr_init_session(&session, &transport.comm, 0xAAAABBBB);
     if (!uxr_create_session(&session))
     {
-        printf("Error at create session.\n");
+        zigbang_log(LOG_FATAL, "Error at create session.");
         return 1;
     }
 
@@ -75,7 +77,7 @@ int main(
     uxrObjectId topic_id = uxr_object_id(0x01, UXR_TOPIC_ID);
     const char *topic_xml = "<dds>"
                             "<topic>"
-                            "<name>HelloWorldTopic</name>"
+                            "<name>TimeStamp</name>"
                             "<dataType>TimeStamp</dataType>"
                             "</topic>"
                             "</dds>";
@@ -92,7 +94,7 @@ int main(
                                  "<data_writer>"
                                  "<topic>"
                                  "<kind>NO_KEY</kind>"
-                                 "<name>HelloWorldTopic</name>"
+                                 "<name>TimeStamp</name>"
                                  "<dataType>TimeStamp</dataType>"
                                  "</topic>"
                                  "</data_writer>"
@@ -104,10 +106,14 @@ int main(
     uint8_t status[4];
     uint16_t requests[4] = {
         participant_req, topic_req, publisher_req, datawriter_req};
+
     if (!uxr_run_session_until_all_status(&session, 1000, requests, status, 4))
     {
-        printf("Error at create entities: participant: %i topic: %i publisher: %i darawriter: %i\n", status[0],
-               status[1], status[2], status[3]);
+        std::string message = "Error at create entities: participant: " + std::to_string(status[0]) +
+                              " topic: " + std::to_string(status[1]) +
+                              " publisher: " + std::to_string(status[2]) +
+                              " datawriter: " + std::to_string(status[3]);
+        zigbang_log(LOG_FATAL, message);
         return 1;
     }
 
@@ -116,22 +122,27 @@ int main(
     uint32_t count = 0;
 
     struct timespec ts;
+    time_t LastSec = 0;
     while (connected)
     {
-        TimeStamp topic;
-
         clock_gettime(CLOCK_REALTIME, &ts);
 
-        topic.sec = (uint32_t)ts.tv_sec;
-        topic.sec = (uint32_t)ts.tv_nsec;
+        if (LastSec != ts.tv_sec)
+        {
+            LastSec = ts.tv_sec;
 
-        ucdrBuffer ub;
-        uint32_t topic_size = TimeStamp_size_of_topic(&topic, 0);
-        uxr_prepare_output_stream(&session, reliable_out, datawriter_id, &ub, topic_size);
-        TimeStamp_serialize_topic(&ub, &topic);
+            TimeStamp topic;
+            topic.sec = (uint32_t)ts.tv_sec;
+            topic.nanosec = (uint32_t)ts.tv_nsec;
 
-        printf("Send topic: sec %u, nano: %u\n", topic.sec, topic.nanosec);
-        connected = uxr_run_session_time(&session, 1000);
+            ucdrBuffer ub;
+            uint32_t topic_size = TimeStamp_size_of_topic(&topic, 0);
+            uxr_prepare_output_stream(&session, reliable_out, datawriter_id, &ub, topic_size);
+            TimeStamp_serialize_topic(&ub, &topic);
+
+            zigbang_log(LOG_WARN, "Send topic: sec " + std::to_string(topic.sec) + ", nano: " + std::to_string(topic.nanosec));
+            connected = uxr_run_session_time(&session, 1000);
+        }
     }
 
     // Delete resources

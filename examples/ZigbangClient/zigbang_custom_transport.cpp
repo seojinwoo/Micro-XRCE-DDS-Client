@@ -17,13 +17,15 @@ void tx_thread();
 std::thread rx485(rx_thread);
 std::thread tx485(tx_thread);
 
+extern void zigbang_log(LogLevel level, const std::string &message);
+
 bool InitCustomTransport()
 {
     bool rv;
     fdSerial = open("/dev/ttyUSB1", O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (fdSerial == -1)
     {
-        perror("open_port: Unable to open /dev/ttyUSB1 - ");
+        zigbang_log(LOG_FATAL, "open_port: Unable to open /dev/ttyUSB1 - ");
         rv = false;
     }
     else
@@ -39,12 +41,12 @@ void DeInitCustomTransport()
 {
 }
 
-bool my_custom_transport_open(
+bool zigbang_custom_transport_open(
     uxrCustomTransport *transport)
 {
     (void)transport;
 
-    printf("Micro XRCE-DDS Client Custom transport: opening\n");
+    zigbang_log(LOG_INFO, "Micro XRCE-DDS Client Custom transport: opening");
 
     RxQueue.clear();
     TxQueue.clear();
@@ -54,23 +56,25 @@ bool my_custom_transport_open(
     return rv;
 }
 
-bool my_custom_transport_close(
+bool zigbang_custom_transport_close(
     uxrCustomTransport *transport)
 {
     (void)transport;
 
-    printf("Micro XRCE-DDS Client Custom transport: closing\n");
+    zigbang_log(LOG_INFO, "Micro XRCE-DDS Client Custom transport: closing");
 
     return (-1 == fdSerial) ? true : (0 == close(fdSerial));
 }
 
-size_t my_custom_transport_write(
+size_t zigbang_custom_transport_write(
     uxrCustomTransport *transport,
     const uint8_t *buf,
     size_t len,
     uint8_t *errcode)
 {
     (void)transport;
+    bool DebugHere = false;
+
     std::vector<uint8_t> payload(buf, buf + len);
 
     // Make Header
@@ -92,19 +96,22 @@ size_t my_custom_transport_write(
 
     payload.insert(payload.end(), CRC, CRC + 2);
 
-    std::cout << ">> " << StreamPacket::ShowPayload(payload);
+    if (DebugHere)
+    {
+        zigbang_log(LOG_INFO, ">> " + StreamPacket::ShowPayload(payload));
+    }
     TxQueue.push(payload);
 
     // Return to uDDS
     rv = (size_t)len;
     *errcode = 0;
 
-    printf("Micro XRCE-DDS Client Custom transport: wrote %ld B\n", rv);
+    zigbang_log(LOG_INFO, "Micro XRCE-DDS Client Custom transport: wrote " + std::to_string(rv) + " B");
 
     return rv;
 }
 
-size_t my_custom_transport_read(
+size_t zigbang_custom_transport_read(
     uxrCustomTransport *transport,
     uint8_t *buf,
     size_t len,
@@ -134,7 +141,7 @@ size_t my_custom_transport_read(
 
     if (rv != 0)
     {
-        printf("Micro XRCE-DDS Client Custom transport: read %ld B\n", rv);
+        zigbang_log(LOG_INFO, "Micro XRCE-DDS Client Custom transport: read " + std::to_string(rv) + " B");
     }
 
     return rv;
@@ -160,7 +167,7 @@ std::vector<uint8_t> HandlingSerial(uint8_t one)
 
     if (DebugHere)
     {
-        std::cout << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(one) << " ";
+        zigbang_log(LOG_INFO, (static_cast<std::ostringstream &&>(std::ostringstream() << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(one))).str());
     }
 
     SavedToReturn.push_back(one);
@@ -240,7 +247,7 @@ std::vector<uint8_t> HandlingSerial(uint8_t one)
 
     if (DebugHere)
     {
-        std::cout << "Step: " << Step << std::endl;
+        zigbang_log(LOG_INFO, (static_cast<std::ostringstream &&>(std::ostringstream() << "Step: " << static_cast<int>(Step))).str());
     }
 
     if (Step == 99 || Step == 6)
@@ -256,7 +263,7 @@ void rx_thread()
 {
     bool DebugHere = false;
     // Infinite loop that runs the interval job
-    std::cout << "Start Serial RX" << std::endl;
+    zigbang_log(LOG_WARN, "Start Serial RX");
     while (true)
     {
         uint8_t buffer;
@@ -264,38 +271,32 @@ void rx_thread()
         int n = read(fdSerial, &buffer, 1);
         if (n > 0)
         {
-            if (buffer == 0x7E)
-            {
-                // std::cout << std::endl;
-            }
-
             if (DebugHere)
             {
-                std::cout << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(buffer) << " ";
-                std::cout.flush();
-            }
-            else
-            {
-                // std::cout << ".";
-                // std::cout.flush();
+                zigbang_log(LOG_INFO, (static_cast<std::ostringstream &&>(std::ostringstream() << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(buffer))).str());
             }
 
             std::vector<uint8_t> Result = HandlingSerial(buffer);
             if (Result.size() > 0)
             {
-                std::cout << "<< " << StreamPacket::ShowPayload(Result);
+                if (DebugHere)
+                {
+                    zigbang_log(LOG_INFO, "<< " + StreamPacket::ShowPayload(Result));
+                }
+
                 RxQueue.push(Result);
             }
         }
     }
-    std::cout << "Exit Serial RX" << std::endl;
+    zigbang_log(LOG_WARN, "Exit Serial RX");
 }
 
 void tx_thread()
 {
     bool DebugHere = true;
     // Infinite loop that runs the interval job
-    std::cout << "Start Serial TX" << std::endl;
+    zigbang_log(LOG_WARN, "Start Serial TX");
+
     while (true)
     {
         std::vector<u_int8_t> newOne;
@@ -303,5 +304,6 @@ void tx_thread()
 
         int n = write(fdSerial, newOne.data(), newOne.size());
     }
-    std::cout << "Exit Serial TX" << std::endl;
+
+    zigbang_log(LOG_WARN, "Exit Serial TX");
 }

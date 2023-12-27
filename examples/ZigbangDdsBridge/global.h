@@ -30,6 +30,8 @@
 #include "ThreadSafeQueue.h"
 #include "StreamPacket.h"
 
+#include "dds_Log.h"
+
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
 
@@ -45,6 +47,8 @@
 #ifndef EXTERN
 #define EXTERN extern
 #endif
+
+extern void zigbang_log(LogLevel level, const std::string &message);
 
 EXTERN std::map<uint8_t, std::pair<std::string, std::string>> dicTopics;
 EXTERN ThreadSafeBitChange threadRun;

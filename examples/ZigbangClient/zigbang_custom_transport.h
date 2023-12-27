@@ -20,16 +20,16 @@
 
 bool InitCustomTransport();
 void DeInitCustomTransport();
-bool my_custom_transport_open(
+bool zigbang_custom_transport_open(
     uxrCustomTransport *transport);
-bool my_custom_transport_close(
+bool zigbang_custom_transport_close(
     uxrCustomTransport *transport);
-size_t my_custom_transport_write(
+size_t zigbang_custom_transport_write(
     uxrCustomTransport *transport,
     const uint8_t *buf,
     size_t len,
     uint8_t *errcode);
-size_t my_custom_transport_read(
+size_t zigbang_custom_transport_read(
     uxrCustomTransport *transport,
     uint8_t *buf,
     size_t len,
