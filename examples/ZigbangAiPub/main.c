@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "HelloWorld.h"
+#include "dds_TimeStamp.h"
 #include "dds_AIFaceRecognition.h"
 
 #include <uxr/client/client.h>
@@ -24,6 +24,8 @@
 
 #define STREAM_HISTORY  8
 #define BUFFER_SIZE     UXR_CONFIG_UDP_TRANSPORT_MTU* STREAM_HISTORY
+
+#define TOPIC_TEST_TIMESTAMP 0
 
 int main(
         int args,
@@ -78,12 +80,22 @@ int main(
                     participant_xml, UXR_REPLACE);
 
     uxrObjectId topic_id = uxr_object_id(0x01, UXR_TOPIC_ID);
+#if TOPIC_TEST_TIMESTAMP == 0
     const char* topic_xml = "<dds>"
             "<topic>"
-            "<name>HelloWorldTopic</name>"
-            "<dataType>HelloWorld</dataType>"
+            "<name>AIFaceRecognitionEvent</name>"
+            "<dataType>AIFaceRecognitionEvent</dataType>"
             "</topic>"
             "</dds>";
+
+#else
+    const char* topic_xml = "<dds>"
+            "<topic>"
+            "<name>TimeStamp</name>"
+            "<dataType>TimeStamp</dataType>"
+            "</topic>"
+            "</dds>";
+#endif            
     uint16_t topic_req = uxr_buffer_create_topic_xml(&session, reliable_out, topic_id, participant_id, topic_xml,
                     UXR_REPLACE);
 
@@ -93,15 +105,27 @@ int main(
                     publisher_xml, UXR_REPLACE);
 
     uxrObjectId datawriter_id = uxr_object_id(0x01, UXR_DATAWRITER_ID);
+#if TOPIC_TEST_TIMESTAMP == 0
     const char* datawriter_xml = "<dds>"
             "<data_writer>"
             "<topic>"
             "<kind>NO_KEY</kind>"
-            "<name>HelloWorldTopic</name>"
-            "<dataType>HelloWorld</dataType>"
+            "<name>AIFaceRecognitionEvent</name>"
+            "<dataType>AIFaceRecognitionEvent</dataType>"
             "</topic>"
             "</data_writer>"
             "</dds>";
+#else
+    const char* datawriter_xml = "<dds>"
+            "<data_writer>"
+            "<topic>"
+            "<kind>NO_KEY</kind>"
+            "<name>TimeStamp</name>"
+            "<dataType>TimeStamp</dataType>"
+            "</topic>"
+            "</data_writer>"
+            "</dds>";
+#endif            
     uint16_t datawriter_req = uxr_buffer_create_datawriter_xml(&session, reliable_out, datawriter_id, publisher_id,
                     datawriter_xml, UXR_REPLACE);
 
@@ -120,18 +144,42 @@ int main(
     // Write topics
     bool connected = true;
     uint32_t count = 0;
-    while (connected && count < max_topics)
+    while (connected)
     {
-        HelloWorld topic = {
-            ++count, "Hello DDS world!"
-        };
+#if TOPIC_TEST_TIMESTAMP == 0
+        AIFaceRecognitionEvent topic;
+        topic.confidence = 1.1 + count++;
+        topic.spoofing_rate = 2.2;
+        topic.user_id[0] = 'H';
+        topic.user_id[1] = 'I';
+        topic.user_id[2] = ',';
+        topic.user_id[3] = 'J';
+        topic.user_id[4] = 'W';
+        topic.user_id[5] = 0;
 
         ucdrBuffer ub;
-        uint32_t topic_size = HelloWorld_size_of_topic(&topic, 0);
-        uxr_prepare_output_stream(&session, reliable_out, datawriter_id, &ub, topic_size);
-        HelloWorld_serialize_topic(&ub, &topic);
+        uint32_t topic_size = AIFaceRecognitionEvent_size_of_topic(&topic, 0);
+        printf("topic_size: %d\n", topic_size);
 
-        printf("Send topic: %s, id: %i\n", topic.message, topic.index);
+        uxr_prepare_output_stream(&session, reliable_out, datawriter_id, &ub, topic_size);
+        AIFaceRecognitionEvent_serialize_topic(&ub, &topic);
+
+        printf("Send topic, confidence: %f, spoofing_rate: %f, user_id: %s\n", topic.confidence, topic.spoofing_rate, topic.user_id);
+#else
+        TimeStamp topic;
+        topic.sec = count++;
+        topic.nanosec = count/2;
+
+        ucdrBuffer ub;
+        uint32_t topic_size = TimeStamp_size_of_topic(&topic, 0);
+        printf("topic_size: %d\n", topic_size);
+
+        uxr_prepare_output_stream(&session, reliable_out, datawriter_id, &ub, topic_size);
+        TimeStamp_serialize_topic(&ub, &topic);
+
+        printf("Send topic, sec: %d, nanosec: %d\n", topic.sec, topic.nanosec);
+#endif
+
         connected = uxr_run_session_time(&session, 1000);
     }
 
