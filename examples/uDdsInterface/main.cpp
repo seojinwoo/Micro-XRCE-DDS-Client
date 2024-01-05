@@ -140,8 +140,11 @@ int main(
     bool connected = true;
 
     std::thread pipeThread(PipeTask, PIPE_STATUS_ID);
+    pipeThread.detach();
     while (threadRun.get_bit(PIPE_STATUS_ID) != true)
         ;
+
+    /*
     while (threadIdle.get_bit(PIPE_STATUS_ID) != true)
     {
         if (threadRun.get_bit(PIPE_STATUS_ID) == false)
@@ -150,6 +153,7 @@ int main(
             break;
         }
     }
+    */
 
     if (connected)
     {
@@ -181,23 +185,24 @@ int main(
                     threadRun.set_bit(EXIT_PROGRAM_ID);
                 }
             }
-            if (threadRun.get_bit(PIPE_STATUS_ID) == false)
-            {
-                if (threadRun.get_bit(EXIT_PROGRAM_ID) == false)
-                {
-                    threadRun.set_bit(EXIT_PROGRAM_ID);
-                }
-            }
 
             if ((threadRun.get_bit(PUB_STATUS_ID) == false) &&
-                (threadRun.get_bit(SUB_STATUS_ID) == false) &&
-                (threadRun.get_bit(PIPE_STATUS_ID) == false))
+                (threadRun.get_bit(SUB_STATUS_ID) == false))
             {
                 connected = false;
             }
-        }
-    }
 
-    std::cout << "Exit ddsInterface" << std::endl;
-    return 0;
+            if (threadRun.get_bit(PIPE_STATUS_ID) == false)
+            {
+                // Start thread again of pipeThread
+                pipeThread = std::thread(PipeTask, PIPE_STATUS_ID);
+                pipeThread.detach();
+                while (threadRun.get_bit(PIPE_STATUS_ID) != true)
+                    ;
+            }
+        }
+
+        std::cout << "Exit ddsInterface" << std::endl;
+        return 0;
+    }
 }

@@ -44,7 +44,6 @@ void on_topic(
 
         std::cout << "Received : AIFaceRecognitionEvent - confidence: " << topic.confidence << ", spoofing_rate: " << topic.spoofing_rate << ", user_id: " << topic.user_id << std::endl;
 
-        /*
         // make json from topic
         Json::Value root;
         // Add name and value to the object
@@ -74,7 +73,6 @@ void on_topic(
         Json::FastWriter fastWriter;
         std::string ToPush = fastWriter.write(root);
         fromSub.push(ToPush);
-        */
     }
     else if (object_id.id == 36)
     {

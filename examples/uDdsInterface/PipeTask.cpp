@@ -190,6 +190,6 @@ void PipeTask(int index)
     WSACleanup();
 #endif
 
-    std::cout << "Exit Pipe Thread" << std::endl;
     threadRun.clear_bit(index);
+    std::cout << "Exit Pipe Thread" << std::endl;
 }
