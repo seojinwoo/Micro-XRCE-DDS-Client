@@ -67,6 +67,7 @@ void PipeTask(int index)
 
     while (connected)
     {
+        bool DoSomething = false;
         if (threadRun.get_bit(EXIT_PROGRAM_ID))
         {
             connected = false;
@@ -75,6 +76,7 @@ void PipeTask(int index)
         // from Sub. to Server
         if (fromSub.count() > 0)
         {
+            DoSomething = true;
             std::string ToServer = fromSub.pop().c_str();
 #ifdef __linux__
             result = send(sock, ToServer.c_str(), ToServer.size(), 0);
@@ -95,22 +97,19 @@ void PipeTask(int index)
             }
 #endif
         }
-        else
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        }
 
         // from Server to Pub.
         {
             fd_set readSet;
             FD_ZERO(&readSet);
             FD_SET(sock, &readSet);
+
             timeval timeout;
             timeout.tv_sec = 0;
             timeout.tv_usec = 0;
 
 #ifdef __linux__
-            result = select(sock, &readSet, NULL, NULL, &timeout);
+            result = select(sock + 1, &readSet, NULL, NULL, &timeout);
 
             if (result < 0)
             {
@@ -125,6 +124,7 @@ void PipeTask(int index)
 
             if (result > 0)
             {
+                DoSomething = true;
                 // Receive a response from the server
                 char buffer[1024];
                 result = recv(sock, buffer, sizeof(buffer), 0);
@@ -141,6 +141,11 @@ void PipeTask(int index)
                     std::string ToPush(buffer);
                     toPub.push(ToPush);
                 }
+            }
+
+            if (DoSomething == false)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             }
 
 #else
@@ -180,6 +185,10 @@ void PipeTask(int index)
                 }
             }
 #endif
+            if (DoSomething == false)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            }
         }
     }
 
