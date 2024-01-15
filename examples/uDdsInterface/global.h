@@ -37,6 +37,7 @@
 #include <jsoncpp/json/json.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #else
 #include <winsock2.h>

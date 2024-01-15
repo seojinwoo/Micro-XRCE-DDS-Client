@@ -61,7 +61,6 @@ public:
     std::map<uint8_t, ReaderInformation> dicReader;
     std::list<std::pair<uint16_t, std::string>> listRequest;
 
-
     // Transport Stream
     uxrUDPTransport transport;
     uxrStreamId reliable_out;
@@ -87,36 +86,67 @@ public:
     // debug level
     uint8_t DebugLevel = 1;
 
-    bool InitParticipant(char* ip, char* port, uint32_t inBufferLength, uint32_t outBufferLength, uint32_t key);
-    void LinkSub(uint8_t topicId, const char* topicName, const char* dataType);
-    void LinkPub(uint8_t topicId, const char* topicName, const char* dataType);
+    bool InitParticipant(char *ip, char *port, uint32_t inBufferLength, uint32_t outBufferLength, uint32_t key);
+    void LinkSub(uint8_t topicId, const char *topicName, const char *dataType);
+    void LinkPub(uint8_t topicId, const char *topicName, const char *dataType);
     bool RegisterEntity();
-    void PubTopic(AIFaceRecognitionEvent topic);
-    void PubTopic(AIFaceRecognitionRequest topic);
-    void PubTopic(AIFaceRecognitionResponse topic);
-    void PubTopic(TimeStamp topic);
     void StartSubscribe(uint8_t key);
     void StartAllSubscribe();
     void Exit();
 
+    // For paste Generated Code here - Start
+    void PubTopic(AIFaceRecognitionEvent topic);
+    void PubTopic(AIFaceRecognitionRequest topic);
+    void PubTopic(AIFaceRecognitionResponse topic);
+    void PubTopic(AIQREvent topic);
+    void PubTopic(AIQRRequest topic);
+    void PubTopic(AIQRResponse topic);
+    void PubTopic(AISpeakerEvent topic);
+    void PubTopic(AISpeakerRequest topic);
+    void PubTopic(AISpeakerResponse topic);
+    void PubTopic(AISystemEvent topic);
+    void PubTopic(AISystemRequest topic);
+    void PubTopic(AISystemResponse topic);
+    void PubTopic(AIWebRTCEvent topic);
+    void PubTopic(AIWebRTCRequest topic);
+    void PubTopic(AIWebRTCResponse topic);
+    void PubTopic(BuzzerEvent topic);
+    void PubTopic(BuzzerRequest topic);
+    void PubTopic(BuzzerResponse topic);
+    void PubTopic(CommonResponse topic);
+    void PubTopic(FingerPrintEvent topic);
+    void PubTopic(FingerPrintRequest topic);
+    void PubTopic(FingerPrintResponse topic);
+    void PubTopic(Log topic);
+    void PubTopic(MorticeEvent topic);
+    void PubTopic(MorticeRequest topic);
+    void PubTopic(MorticeResponse topic);
+    void PubTopic(QRReadEvent topic);
+    void PubTopic(QRReadRequest topic);
+    void PubTopic(QRReadResponse topic);
+    void PubTopic(RFIDReadEvent topic);
+    void PubTopic(RFIDRequest topic);
+    void PubTopic(RFIDResponse topic);
+    void PubTopic(SensorEvent topic);
+    void PubTopic(SensorRequest topic);
+    void PubTopic(SensorResponse topic);
+    void PubTopic(TimeStamp topic);
+    // For paste Generated Code here - End
 
 private:
-    bool InitTrasport(char* ip, char* port);
+    bool InitTrasport(char *ip, char *port);
     bool InitSession(uint32_t key);
     void MakeStream(uint32_t inBufferLength, uint32_t outBufferLength);
     void CreateEntity(uint16_t id);
 
-    void MakeTopic(uint8_t topicId, const char* topicName, const char* dataType);
+    void MakeTopic(uint8_t topicId, const char *topicName, const char *dataType);
     void MakePublisher(uint8_t publisherId);
-    void MakeDataWriter(uint8_t datawriterId, const char* topicName, const char* dataType);
+    void MakeDataWriter(uint8_t datawriterId, const char *topicName, const char *dataType);
 
     void MakeSubscriber(uint8_t publisherId);
-    void MakeDataReader(uint8_t datareaderId, const char* topicName, const char* dataType);
+    void MakeDataReader(uint8_t datareaderId, const char *topicName, const char *dataType);
 
     void AddRequest(uint16_t reqValue, std::string reqName);
-
 };
 
-
-
-#endif 
+#endif

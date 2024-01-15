@@ -46,7 +46,7 @@ void PubTask(char *ip, char *port, int index)
             while (connected)
             {
 #if true
-                connected = uxr_run_session_time(&uxrPubOnly.session, 500);
+                connected = uxr_run_session_time(&uxrPubOnly.session, 100);
 
                 if (connected == false)
                 {
@@ -72,6 +72,10 @@ void PubTask(char *ip, char *port, int index)
                         std::cout << "Failed to parse" << reader.getFormattedErrorMessages();
                         continue;
                     }
+
+                    // Get Topic Name
+                    std::string topicName = root.begin().key().asString();
+                    std::cout << "Topic Name : " << topicName << std::endl;
 
                     if (root.isMember("AIFaceRecognitionEvent"))
                     {
@@ -105,6 +109,13 @@ void PubTask(char *ip, char *port, int index)
 
                         uxrPubOnly.PubTopic(topic);
                     }
+                    else if (root.isMember("RFIDReadEvent"))
+                    {
+                        RFIDReadEvent topic;
+
+                        uxrPubOnly.PubTopic(topic);
+                    }
+
                     else if (root.isMember("TimeStamp"))
                     {
                         TimeStamp topic;

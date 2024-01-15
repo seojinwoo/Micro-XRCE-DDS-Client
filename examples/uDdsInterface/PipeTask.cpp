@@ -2,6 +2,8 @@
 
 #pragma warning(disable : 4996)
 
+void ProcessStream(char Data);
+
 void PipeTask(int index)
 {
     threadRun.set_bit(index);
@@ -14,6 +16,36 @@ void PipeTask(int index)
         std::cout << "socket failed: " << strerror(errno) << std::endl;
     }
     int result;
+
+    // make socket's option to resue address
+    int optval = 1;
+    result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+    if (result < 0)
+    {
+        std::cout << "setsockopt failed: " << strerror(errno) << std::endl;
+        close(sock);
+    }
+
+    // make socket's option no use Nagle's algorithm
+    optval = 1;
+    result = setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof(optval));
+    if (result < 0)
+    {
+        std::cout << "setsockopt failed: " << strerror(errno) << std::endl;
+        close(sock);
+    }
+
+    // make socket's option to get data fast not wait
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    result = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof(tv));
+    if (result < 0)
+    {
+        std::cout << "setsockopt failed: " << strerror(errno) << std::endl;
+        close(sock);
+    }
+
 #else
     WSADATA wsaData;
     int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -126,26 +158,32 @@ void PipeTask(int index)
             {
                 DoSomething = true;
                 // Receive a response from the server
-                char buffer[1024];
+                char buffer[4096];
                 result = recv(sock, buffer, sizeof(buffer), 0);
-                if (result < 0)
+                if (result <= 0)
                 {
                     std::cout << "recv failed: " << strerror(errno) << std::endl;
                     close(sock);
                 }
                 else
                 {
-                    buffer[result] = '\0';
-                    std::cout << "Received message: " << buffer << std::endl;
-
                     std::string ToPush(buffer);
-                    toPub.push(ToPush);
+                    // Make Short ToPush with Length 20
+                    if (ToPush.size() > 20)
+                    {
+                        ToPush = ToPush.substr(0, 20);
+                    }
+
+                    for (int Index = 0; Index < result; Index++)
+                    {
+                        ProcessStream(buffer[Index]);
+                    }
                 }
             }
 
             if (DoSomething == false)
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
 
 #else
@@ -184,11 +222,11 @@ void PipeTask(int index)
                     toPub.push(ToPush);
                 }
             }
-#endif
             if (DoSomething == false)
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
+#endif
         }
     }
 
@@ -201,4 +239,89 @@ void PipeTask(int index)
 
     threadRun.clear_bit(index);
     std::cout << "Exit Pipe Thread" << std::endl;
+}
+
+void ProcessStream(char Data)
+{
+    static uint32_t Step = 0;
+    static uint32_t Variable = 0;
+    static uint32_t Length = 0;
+    static std::string Frame;
+    static uint32_t ReceivedCount = 0;
+    static bool Step0Error = false;
+
+    switch (Step)
+    {
+    default:
+        Step = 0;
+        Variable = 0;
+        Length = 0;
+        Frame = "";
+    case 0: // Wait Start Pattern wait 5 times '$'
+    {
+        if (Data == '&')
+        {
+            Step0Error = false;
+            Variable++;
+
+            if (Variable == 5)
+            {
+                Step++;
+                Variable = 0;
+                Length = 0;
+            }
+        }
+        else
+        {
+            Variable = 0;
+            if (Step0Error == false)
+            {
+                Step0Error = true;
+                std::cout << "Step 0 Error: " << Data << std::endl;
+            }
+        }
+        break;
+    }
+
+    case 1: // Wait 5 Digit to Parse Length
+    {
+        // Check Data is One of Number 0 ~ 9
+        if (('0' <= Data) && (Data <= '9'))
+        {
+            Length *= 10;
+            Length += (Data - '0');
+            Variable++;
+
+            if (Variable == 5)
+            {
+                Step++;
+                Variable = 0;
+                Frame = "";
+            }
+        }
+        else
+        {
+            std::cout << "Step 1 Error" << std::endl;
+            Variable = 0;
+            Step = 99;
+        }
+        break;
+    }
+
+    case 2: // Get All Data until Length
+    {
+        Frame += Data;
+        Variable++;
+        if (Variable >= Length)
+        {
+            std::cout << "Received message: " << std::to_string(++ReceivedCount) << std::endl;
+
+            toPub.push(Frame);
+
+            Step = 0;
+            Variable = 0;
+        }
+    }
+    break;
+    }
 }

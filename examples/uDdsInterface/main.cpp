@@ -199,6 +199,7 @@ int main(
                 pipeThread.detach();
                 while (threadRun.get_bit(PIPE_STATUS_ID) != true)
                     ;
+                std::cout << "Start Pipe Thread, Again" << std::endl;
             }
         }
 

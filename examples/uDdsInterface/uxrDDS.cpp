@@ -289,47 +289,6 @@ void zigbangUXR::LinkPub(uint8_t topicId, const char *topicName, const char *dat
     MakeDataWriter(topicId, topicName, dataType);
 }
 
-void zigbangUXR::PubTopic(AIFaceRecognitionResponse topic)
-{
-    ucdrBuffer ub;
-    uint32_t topic_size = AIFaceRecognitionResponse_size_of_topic(&topic, 0);
-    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIFaceRecognitionResponse"].datawriter_id, &ub, topic_size);
-    AIFaceRecognitionResponse_serialize_topic(&ub, &topic);
-
-    std::cout << "Send topic(AIFaceRecognitionResponse)" << std::endl;
-}
-
-void zigbangUXR::PubTopic(AIFaceRecognitionRequest topic)
-{
-    ucdrBuffer ub;
-    uint32_t topic_size = AIFaceRecognitionRequest_size_of_topic(&topic, 0);
-    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIFaceRecognitionRequest"].datawriter_id, &ub, topic_size);
-    AIFaceRecognitionRequest_serialize_topic(&ub, &topic);
-
-    std::cout << "Send topic(AIFaceRecognitionRequest)" << std::endl;
-}
-
-void zigbangUXR::PubTopic(AIFaceRecognitionEvent topic)
-{
-    ucdrBuffer ub;
-    uint32_t topic_size = AIFaceRecognitionEvent_size_of_topic(&topic, 0);
-    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIFaceRecognitionEvent"].datawriter_id, &ub, topic_size);
-    AIFaceRecognitionEvent_serialize_topic(&ub, &topic);
-
-    std::cout << "Send topic(AIFaceRecognitionEvent)" << std::endl;
-}
-
-void zigbangUXR::PubTopic(TimeStamp topic)
-{
-    ucdrBuffer ub;
-    uint32_t topic_size = TimeStamp_size_of_topic(&topic, 0);
-    uxr_prepare_output_stream(&session, reliable_out, dicWriter["TimeStamp"].datawriter_id, &ub, topic_size);
-    TimeStamp_serialize_topic(&ub, &topic);
-
-    // printf("Send topic(PubID:%d): %s, index: %i\n", topicId, topic.message, topic.index);
-    std::cout << "Send topic(TimeStamp)" << std::endl;
-}
-
 void zigbangUXR::StartAllSubscribe()
 {
     std::map<uint8_t, TopicInformation>::iterator it;
@@ -356,4 +315,292 @@ void zigbangUXR::Exit()
 {
     uxr_delete_session(&session);
     uxr_close_udp_transport(&transport);
+}
+
+void zigbangUXR::PubTopic(AIFaceRecognitionEvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AIFaceRecognitionEvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIFaceRecognitionEvent"].datawriter_id, &ub, topic_size);
+    AIFaceRecognitionEvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AIFaceRecognitionRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AIFaceRecognitionRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIFaceRecognitionRequest"].datawriter_id, &ub, topic_size);
+    AIFaceRecognitionRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AIFaceRecognitionResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AIFaceRecognitionResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIFaceRecognitionResponse"].datawriter_id, &ub, topic_size);
+    AIFaceRecognitionResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AIQREvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AIQREvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIQREvent"].datawriter_id, &ub, topic_size);
+    AIQREvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AIQRRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AIQRRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIQRRequest"].datawriter_id, &ub, topic_size);
+    AIQRRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AIQRResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AIQRResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIQRResponse"].datawriter_id, &ub, topic_size);
+    AIQRResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AISpeakerEvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AISpeakerEvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AISpeakerEvent"].datawriter_id, &ub, topic_size);
+    AISpeakerEvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AISpeakerRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AISpeakerRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AISpeakerRequest"].datawriter_id, &ub, topic_size);
+    AISpeakerRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AISpeakerResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AISpeakerResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AISpeakerResponse"].datawriter_id, &ub, topic_size);
+    AISpeakerResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AISystemEvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AISystemEvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AISystemEvent"].datawriter_id, &ub, topic_size);
+    AISystemEvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AISystemRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AISystemRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AISystemRequest"].datawriter_id, &ub, topic_size);
+    AISystemRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AISystemResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AISystemResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AISystemResponse"].datawriter_id, &ub, topic_size);
+    AISystemResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AIWebRTCEvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AIWebRTCEvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIWebRTCEvent"].datawriter_id, &ub, topic_size);
+    AIWebRTCEvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AIWebRTCRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AIWebRTCRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIWebRTCRequest"].datawriter_id, &ub, topic_size);
+    AIWebRTCRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(AIWebRTCResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = AIWebRTCResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["AIWebRTCResponse"].datawriter_id, &ub, topic_size);
+    AIWebRTCResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(BuzzerEvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = BuzzerEvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["BuzzerEvent"].datawriter_id, &ub, topic_size);
+    BuzzerEvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(BuzzerRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = BuzzerRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["BuzzerRequest"].datawriter_id, &ub, topic_size);
+    BuzzerRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(BuzzerResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = BuzzerResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["BuzzerResponse"].datawriter_id, &ub, topic_size);
+    BuzzerResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(CommonResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = CommonResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["CommonResponse"].datawriter_id, &ub, topic_size);
+    CommonResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(FingerPrintEvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = FingerPrintEvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["FingerPrintEvent"].datawriter_id, &ub, topic_size);
+    FingerPrintEvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(FingerPrintRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = FingerPrintRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["FingerPrintRequest"].datawriter_id, &ub, topic_size);
+    FingerPrintRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(FingerPrintResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = FingerPrintResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["FingerPrintResponse"].datawriter_id, &ub, topic_size);
+    FingerPrintResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(Log topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = Log_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["Log"].datawriter_id, &ub, topic_size);
+    Log_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(MorticeEvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = MorticeEvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["MorticeEvent"].datawriter_id, &ub, topic_size);
+    MorticeEvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(MorticeRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = MorticeRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["MorticeRequest"].datawriter_id, &ub, topic_size);
+    MorticeRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(MorticeResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = MorticeResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["MorticeResponse"].datawriter_id, &ub, topic_size);
+    MorticeResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(QRReadEvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = QRReadEvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["QRReadEvent"].datawriter_id, &ub, topic_size);
+    QRReadEvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(QRReadRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = QRReadRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["QRReadRequest"].datawriter_id, &ub, topic_size);
+    QRReadRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(QRReadResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = QRReadResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["QRReadResponse"].datawriter_id, &ub, topic_size);
+    QRReadResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(RFIDReadEvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = RFIDReadEvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["RFIDReadEvent"].datawriter_id, &ub, topic_size);
+    RFIDReadEvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(RFIDRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = RFIDRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["RFIDRequest"].datawriter_id, &ub, topic_size);
+    RFIDRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(RFIDResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = RFIDResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["RFIDResponse"].datawriter_id, &ub, topic_size);
+    RFIDResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(SensorEvent topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = SensorEvent_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["SensorEvent"].datawriter_id, &ub, topic_size);
+    SensorEvent_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(SensorRequest topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = SensorRequest_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["SensorRequest"].datawriter_id, &ub, topic_size);
+    SensorRequest_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(SensorResponse topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = SensorResponse_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["SensorResponse"].datawriter_id, &ub, topic_size);
+    SensorResponse_serialize_topic(&ub, &topic);
+}
+
+void zigbangUXR::PubTopic(TimeStamp topic)
+{
+    ucdrBuffer ub;
+    uint32_t topic_size = TimeStamp_size_of_topic(&topic, 0);
+    uxr_prepare_output_stream(&session, reliable_out, dicWriter["TimeStamp"].datawriter_id, &ub, topic_size);
+    TimeStamp_serialize_topic(&ub, &topic);
 }
