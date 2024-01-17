@@ -1,5 +1,6 @@
 
 #include "global.h"
+#include "off_topic.h"
 
 #ifdef __linux__
 
@@ -45,7 +46,6 @@ void PubTask(char *ip, char *port, int index)
             threadIdle.set_bit(index);
             while (connected)
             {
-#if true
                 connected = uxr_run_session_time(&uxrPubOnly.session, 100);
 
                 if (connected == false)
@@ -64,97 +64,12 @@ void PubTask(char *ip, char *port, int index)
                     std::string ToServer = toPub.pop().c_str();
 
                     // Make Json object from ToServer
-                    Json::Value root;
-                    Json::Reader reader;
-                    bool parsingSuccessful = reader.parse(ToServer, root);
-                    if (!parsingSuccessful)
-                    {
-                        std::cout << "Failed to parse" << reader.getFormattedErrorMessages();
-                        continue;
-                    }
-
-                    // Get Topic Name
-                    std::string topicName = root.begin().key().asString();
-                    std::cout << "Topic Name : " << topicName << std::endl;
-
-                    if (root.isMember("AIFaceRecognitionEvent"))
-                    {
-                        AIFaceRecognitionEvent topic;
-                        topic.confidence = root["AIFaceRecognitionEvent"]["value"]["confidence"]["value"].asFloat();
-                        topic.event = (AIFaceRecognitionEventType_cdr)root["AIFaceRecognitionEvent"]["value"]["event"]["value"].asUInt();
-                        topic.spoofing_rate = root["AIFaceRecognitionEvent"]["value"]["spoofing_rate"]["value"].asFloat();
-                        topic.stamp.sec = root["AIFaceRecognitionEvent"]["value"]["stamp"]["value"]["sec"]["value"].asUInt();
-                        topic.stamp.nanosec = root["AIFaceRecognitionEvent"]["value"]["stamp"]["value"]["nanosec"]["value"].asUInt();
-                        std::string user_id = root["AIFaceRecognitionEvent"]["value"]["user_id"]["value"].asString();
-                        memset(topic.user_id, 0, sizeof(topic.user_id));
-                        memcpy(topic.user_id, user_id.c_str(), user_id.size());
-
-                        uxrPubOnly.PubTopic(topic);
-                    }
-                    else if (root.isMember("AIFaceRecognitionRequest"))
-                    {
-                        AIFaceRecognitionRequest topic;
-                        topic.command = (AIFaceRecognitionCommand_cdr)root["AIFaceRecognitionRequest"]["value"]["command"]["value"].asUInt();
-                        topic.timeout_sec = root["AIFaceRecognitionRequest"]["value"]["timeout_sec"]["value"].asUInt();
-                        memset(topic.user_id, 0, sizeof(topic.user_id));
-
-                        uxrPubOnly.PubTopic(topic);
-                    }
-                    else if (root.isMember("AIFaceRecognitionResponse"))
-                    {
-                        AIFaceRecognitionResponse topic;
-                        topic.code = (ErrorCode_cdr)root["AIFaceRecognitionResponse"]["value"]["code"]["value"].asUInt();
-                        topic.command = (AIFaceRecognitionCommand_cdr)root["AIFaceRecognitionResponse"]["value"]["command"]["value"].asUInt();
-                        topic.user_count = root["AIFaceRecognitionResponse"]["value"]["user_count"]["value"].asUInt();
-
-                        uxrPubOnly.PubTopic(topic);
-                    }
-                    else if (root.isMember("RFIDReadEvent"))
-                    {
-                        RFIDReadEvent topic;
-
-                        uxrPubOnly.PubTopic(topic);
-                    }
-
-                    else if (root.isMember("TimeStamp"))
-                    {
-                        TimeStamp topic;
-                        topic.sec = root["TimeStamp"]["value"]["sec"]["value"].asUInt();
-                        topic.nanosec = root["TimeStamp"]["value"]["nanosec"]["value"].asUInt();
-
-                        uxrPubOnly.PubTopic(topic);
-                    }
+                    to_topic(ToServer, it->first, uxrPubOnly);
                 }
                 else
                 {
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 }
-#else
-                for (it = dicTopics.begin(); it != dicTopics.end(); it++)
-                {
-                    std::string text("Hello DDS world!");
-
-                    HelloWorld topic;
-                    topic.index = ++count;
-                    memset(topic.message, 0, sizeof(topic.message));
-                    memcpy(topic.message, text.c_str(), text.size());
-
-                    // uxrPubOnly.PubTopic(it->first, topic);
-
-                    connected = uxr_run_session_time(&uxrPubOnly.session, 500);
-
-                    if (connected == false)
-                    {
-                        break;
-                    }
-
-                    if (threadRun.get_bit(EXIT_PROGRAM_ID))
-                    {
-                        connected = false;
-                        break;
-                    }
-                }
-#endif
             }
         }
     }
